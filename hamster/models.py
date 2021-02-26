@@ -75,11 +75,12 @@ class Contribucion(models.Model):
 		('Mt', 'Materiales de Construcción'),
 		('A', 'Articulos Escolares'),
 	]
-	\
+	
 	fecha = models.DateField()
 	beneficiario = models.ForeignKey(Beneficiario, on_delete=models.RESTRICT)
 	tipo = models.CharField(choices=TIPOS_CONTRIB, max_length=2)
 	monto = models.DecimalField(max_digits=6, decimal_places=2)
+	concepto = models.CharField(max_length=150)
 	institucion = models.ForeignKey(Institucion, on_delete=models.RESTRICT)
 	funcionario = models.ForeignKey(Funcionario, on_delete=models.RESTRICT)
 	digitador = models.ForeignKey(User, on_delete=models.RESTRICT)
