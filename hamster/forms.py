@@ -24,6 +24,6 @@ class FormLogin(forms.Form):
 	"""
 	Formulario de validación de usuario
 	"""
-	username = forms.CharField(max_length=150)
+	username = forms.CharField(max_length=50)
 	password = forms.CharField(max_length=25)
 		
