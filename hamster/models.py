@@ -26,14 +26,14 @@ class Funcionario(models.Model):
 	apellido = models.CharField(max_length=25)
 	correo = models.EmailField()
 	telefono = models.CharField(help_text="Formato: 8888-8888", max_length=9)
-	usuario = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+	usuario = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
 	institucion = models.ForeignKey(Institucion, on_delete=models.CASCADE)
 
 	class Meta:
 		ordering = ['institucion', 'apellido', 'nombre']
 
 	def __str__(self):
-		return "{1} {2}".format(self.nombre, self.apellido).upper()
+		return "{0} {1}".format(self.nombre, self.apellido).upper()
 
 
 class Beneficiario(models.Model):
@@ -46,15 +46,15 @@ class Beneficiario(models.Model):
 		('R', 'Rama'),
 		('G', 'Garifuna')
 	]
-	cedula = models.CharField(max_length=16, primary_key=True)
+	cedula = models.SlugField(max_length=16, primary_key=True)
 	primer_nombre = models.CharField(max_length=25)
-	segundo_nombre = models.CharField(max_length=25, null=True)
+	segundo_nombre = models.CharField(max_length=25, null=True, blank=True)
 	primer_apellido = models.CharField(max_length=25)
-	segundo_apellido = models.CharField(max_length=25, null=True)
+	segundo_apellido = models.CharField(max_length=25, null=True, blank=True)
 	fecha_nac = models.DateField("Fecha de Nacimiento")
 	sexo = models.CharField(max_length=1, choices=[('M', 'Masculino'), ('F', 'Femenino')])
 	etnia = models.CharField(max_length=15, choices=ETNIA_CHOICES)
-	direccion = models.TextField(max_length=250, null=True)
+	direccion = models.TextField(max_length=250, null=True, blank=True)
 
 	def __str__(self):
 		return "{0} {1}".format(self.primer_nombre, self.primer_apellido).upper()
@@ -79,7 +79,7 @@ class Contribucion(TimestampsModel):
 	]
 	
 	fecha = models.DateField()
-	beneficiario = models.ForeignKey(Beneficiario, on_delete=models.RESTRICT)
+	beneficiario = models.ForeignKey(Beneficiario, related_name='contribuciones', on_delete=models.RESTRICT)
 	tipo = models.CharField(choices=TIPOS_CONTRIB, max_length=2)
 	monto = models.DecimalField(max_digits=6, decimal_places=2)
 	concepto = models.CharField(max_length=150)
@@ -88,7 +88,7 @@ class Contribucion(TimestampsModel):
 	creado = models.DateTimeField(auto_now_add=True)
 
 	def __str__(self):
-		return "{0} {1}".format(self.fecha, self.beneficiario)
+		return "{0}>>C$ {1}>>{2}".format(self.fecha, self.monto, self.tipo)
 
 	class Meta:
 		ordering = ['fecha']

@@ -134,3 +134,18 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+REST_FRAMEWORK = {
+    
+    # Usamos los permisos estándar de Django de django.contrib.auth,
+    # o damos acceso de solo lectura a usuarios no autenticados.
+
+    #'DEFAULT_PERMISSION_CLASSES' : [
+    #    'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+    #]
+    'DEFAULT_PERMISSION_CLASSES' : [
+        'rest_framework.permissions.IsAuthenticated'
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES' : [
+        'rest_framework.authentication.BasicAuthentication'
+    ],
+}

@@ -1,325 +1,170 @@
-from django.shortcuts import render, redirect, get_object_or_404, get_list_or_404
-from django.urls import reverse
-from django.utils.decorators import method_decorator
-from django.forms.models import model_to_dict
-from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
-from django.views.generic.list import ListView
-from django.views.generic.detail import DetailView, SingleObjectMixin
-from django.views.generic.edit import FormView
-from django.views.generic.base import View, TemplateView
-from django.http import JsonResponse, HttpResponseForbidden, HttpResponse
-from django.core import serializers
+from django.shortcuts import get_object_or_404, get_list_or_404
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout 
-from django.contrib.sessions.models import Session
-from django.conf import settings
-from importlib import import_module
-from . import models
-from . import forms as frm
-import json
-SessionStore = import_module(settings.SESSION_ENGINE).SessionStore
+from hamster.serializers import *
+from hamster.models import *
+from hamster.permissions import IsOwnerOrReadOnly
+from rest_framework import generics, permissions, status, viewsets
+from rest_framework.views import APIView
+from rest_framework.response import Response 
+
+
 
 # Create your views here.
-class JsonResponseMixin:
 
-	"""
-	Clase Mixin para devolver una repuesta JSON
-	"""
+class ContribucionViewSet(viewsets.ModelViewSet):
 
-	def render_to_json_response(self, context, **response_kwargs):
-		"""
-		Devuelve una respuesta convirtiendo el objeto context a JSON
-		"""
-		return JsonResponse(context, **response_kwargs)
+	""" 
+	Este viewset gestiona las operaciones CRUD de Contribuciones
+	""" 
 
+	queryset = Contribucion.objects.all()
+	serializer_class = ContribucionSerializer
+	permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
 
-	def get_data(self, context):
-		"""
-		Devuelve un objeto convertido a JSON
-		"""
-		data = serializers.serialize('json', context)
-		return data
+	def perform_create(self, serializer):
+		serializer.save(digitador=self.request.user)
 
 
-
-class ListaContribuciones(JsonResponseMixin, ListView):
+''' 
+class ListaContribuciones(generics.ListCreateAPIView):
 
 	"""
 	Vista que obtiene la lista de contribuciones
 	de la base de datos y devuelve un objeto JSON 
-	del resultado del queryset
+	del resultado del queryset o crea una nueva entrada
+	si el método usado es POST
 	"""
 
-	model = models.Contribucion
+	queryset = Contribucion.objects.all()
+	serializer_class = ContribucionSerializer
+	permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
-	def get(self, request, *args, **kwargs):
+	def perform_create(self, serializer):
+		serializer.save(digitador=self.request.user)
+
+
+
+class DetalleContribucion(generics.RetrieveUpdateDestroyAPIView):
+
+	"""
+	Vista que gestiona el detalle de la contribución
+	incluyendo funciones para actualizar y eliminar con los 
+	métodos PUT y DELETE
+	"""
+
+	queryset = Contribucion.objects.all()
+	serializer_class = ContribucionSerializer
+	permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
+'''		
 		
-		return super().get(request, *args, **kwargs)
-
-	def render_to_response(self, context, **response_kwargs):
-		
-		return self.render_to_json_response(context, **response_kwargs)
-
-
-class DetalleContribucion(JsonResponseMixin, DetailView):
+class BeneficiarioViewSet(viewsets.ModelViewSet):
 
 	"""
-	Vista que devuelve el detalle de la contribución
+	Este viewset gestiona las operaciones CRUD de Beneficiario
 	"""
 
-	model = models.Contribucion
-
-	def get(self, request, *args, **kwargs):
-		if not request.user.is_authenticated:
-			return HttpResponseForbidden()
-		else:
-			return super().get(request, *args, **kwargs)
+	queryset = Beneficiario.objects.all()
+	serializer_class = BeneficiarioSerializer
+	permission_classes = [permissions.IsAuthenticated]
 
 
-	def render_to_response(self, context, **response_kwargs):
-
-		return self.render_to_json_response(context, **response_kwargs)
-	
-		
-	
-class FormContribucionView(SingleObjectMixin, FormView):
+''' 
+class ListaBeneficiarios(generics.ListCreateAPIView):
 
 	"""
-	Procesa los datos del formulario y guarda el modelo de datos.
-	Despuúes, redirige a la url del detalle del registro.
-	"""
-
-	form_class = frm.FormContribucion
-	model = models.Contribucion
-	
-	def post(self, request, *args, **kwargs):
-		if not request.user.is_authenticated:
-			return HttpResponseForbidden()
-		else:
-			self.object = self.get_object()
-			return super().post(request, *args, **kwargs)
-
-	def get_success_url(self):
-
-		return self.object.get_absolute_url()
-
-
-#PROBABLEMENTE NO SE USE
-@method_decorator(ensure_csrf_cookie, name='dispatch')
-class NuevaContribucion(View):
-
-	"""
-	Procesa los datos del formulario con el metodo post
-	"""
-
-	def post(self, request, *args, **kwargs):
-		view = FormContribucionView.as_view()
-		return view(request, *args, **kwargs)
-
-
-
-@method_decorator(ensure_csrf_cookie, name='dispatch')
-class EditContribucion(View):
-
-	"""
-	Devuelve un objeto JSON con el metodo get
-	y procesa los datos del formulario con el metodo post
-	"""
-
-	def get(self, request, *args, **kwargs):
-		view = DetalleContribucion.as_view()
-		return view(request, *args, **kwargs)
-
-	def post(self, request, *args, **kwargs):
-		view = FormContribucionView.as_view()
-		return view(request, *args, **kwargs)
-		
-
-class ListaBeneficiarios(JsonResponseMixin, ListView):
-
-	"""
-	Devuelve un objeto JSON con la lista de Beneficiarios
+	Vista que obtiene la lista de beneficiarios
+	de la base de datos y devuelve un objeto JSON 
+	del resultado del queryset o crea una nueva entrada
+	si el método usado es POST
 	"""
 	
-	model = models.Beneficiario
-
-	def get(self, request, *args, **kwargs):
-		if not request.user.is_authenticated:
-			return HttpResponseForbidden()
-		else:
-			return super().get(request, *args, **kwargs)
-
-	def get_queryset(self):
-		self.queryset = self.model.objects.annotate(contrib_count=Count('contribucion'))
-		return self.queryset
-
-	def render_to_response(self, context, **response_kwargs):
-
-		return self.render_to_json_response(context, **response_kwargs)
+	queryset = Beneficiario.objects.all()
+	serializer_class = BeneficiarioSerializer
+	permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
 
-class DetalleBeneficiario(JsonResponseMixin, DetailView):
+
+
+class DetalleBeneficiario(generics.RetrieveUpdateDestroyAPIView):
 
 	"""
-	Devuelve un objeto JSON correspondiente al Beneficiario
+	Vista que gestiona el detalle del beneficiario
+	incluyendo funciones para actualizar y eliminar con los 
+	métodos PUT y DELETE
 	"""
 
-	model = models.Beneficiario
+	queryset = Beneficiario.objects.all()
+	serializer_class = BeneficiarioSerializer
+	permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
-	def get(self, request, *args, **kwargs):
-		if not request.user.is_authenticated:
-			return HttpResponseForbidden()
-		else:
-			return super().get(request, *args, **kwargs)
+''' 
+				
 
-	def get_queryset(self):
-		self.queryset = self.model.objects.annotate(contrib_count=Count('contribucion'))
-		return self.queryset
-
-	def render_to_response(self, context, **response_kwargs):
-
-		return super().render_to_json_response(context, **response_kwargs)
-		
-
-
-class FormBeneficiarioView(SingleObjectMixin, FormView):
-
+class FuncionarioViewSet(viewsets.ReadOnlyModelViewSet):
 	"""
-	Asegura el envío de la cookie con el token csrf y
-	procesa los datos de formulario para guardar o editar
-	modelos de dato de Beneficiarios.
-	"""
+	Este viewset va a gestionar las operaciones CRUD de Funcionarios
+	""" 
+	queryset = Funcionario.objects.all()
+	serializer_class = FuncionarioSerializer
+	permission_classes = [permissions.IsAuthenticated]
+
+
+''' 
+
+class ListaFuncionarios(generics.ListAPIView):
+
+	queryset = Funcionario.objects.all() 
+	serializer_class = FuncionarioSerializer
+	permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+
+
+class DetalleFuncionario(generics.RetrieveAPIView):
+
+	queryset = Funcionario.objects.all()
+	serializer_class = FuncionarioSerializer
+	permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+''' 
+
+
+
+class InstitucionViewSet(viewsets.ReadOnlyModelViewSet):
+
+	queryset = Institucion.objects.all()
+	serializer_class = InstitucionSerializer
+	permission_classes = [permissions.IsAuthenticated]
 	
-	form_class = frm.FormBeneficiario
-	model = models.Beneficiario
-
-	def post(self, request, *args, **kwargs):
-		if not request.user.is_authenticated:
-			return HttpResponseForbidden()
-		else:
-			self.object = self.get_object()
-			return super().post(request, *args, *kwargs)
-
-	def get_success_url(self):
-
-		return self.object.get_absolute_url()
 
 
-@method_decorator(ensure_csrf_cookie, name='dispatch')
-class EditBeneficiario(View):
+# NO SE USA
+class UserDetail(generics.RetrieveAPIView):
+
+	queryset = User.objects.all()
+	serializer_class = UserSerializer
 	
-	"""
-	Garantiza un objeto JSON con el token csrf en el metodo get
-	y procesa los datos de formulario en el metodo post.
-	Hace el llamado a otras vistas para cada metodo (get, post) por 
-	separado.
-	"""
-	
-	def get(self, request, *args, **kwargs):
-		view = DetalleBeneficiario.as_view()
-		return view(request, *args, **kwargs)
 
-	def post(self, request, *args, **kwargs):
-		view = FormBeneficiarioView.as_view()
-		return view(request, *args, **kwargs)
 
-		
-@method_decorator(csrf_exempt, name='dispatch')
-class UserSession(JsonResponseMixin, View):
+class UserLogin(APIView):
 
-	model_class = User
+	queryset = User.objects.all()
+	serializer_class = UserSerializer
+	permission_classes = [permissions.AllowAny]
 
-	def post(self, request, *args, **kwargs):
-		data = json.loads(request.body)
-		sesion = Session.objects.get(pk=data['sessionid'])
-		s = sesion.get_decoded()
-		if s['_auth_user_id'] == data['userid']:
-			user = self.model_class.objects.get(pk=data['userid'])
-			context = {'expire_date':sesion.expire_date}
-			if user is not None:
-				user_dict = model_to_dict(user, fields=['id', 'username', 'first_name', 'last_name', 'email'])
-				context['usuario'] = user_dict
-			return self.render_to_json_response(context)
+
+	def post(self, request, format=None):
+
+		print(request.data)
+		uname = request.data['username']
+		pword = request.data['password']
+
+		user = authenticate(username=uname, password=pword)
+		if user is not None:
+			serializer = UserSerializer(user)
+			return Response(serializer.data, status=status.HTTP_200_OK)
 		else:
-			return HttpResponseForbidden()
+			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-@method_decorator(csrf_exempt, name='dispatch')
-class UserLogout(JsonResponseMixin, View):
-	
-	def post(self, request, *args, **kwargs):
-		data = json.loads(request.body)
-		user = User.objects.get(pk=data['userid'])
-		sesion = Session.objects.get(pk=data['sessionid'])
-		s = sesion.get_decoded()
-		if (user is not None) and (data['userid'] == s['_auth_user_id']):
-			request.user = user
-			logout(request)
-			sesion.delete()
-			context = {'logout':True}
-			return self.render_to_json_response(context)
-		else:
-			return HttpResponseForbidden()
-
-		
-
-
-@method_decorator(csrf_exempt, name='dispatch')
-class UserLogin(JsonResponseMixin, View):
-
-	template_name = 'hamster/login.html'
-	form_class = frm.FormLogin
-	model_class = User
-
-
-	def post(self, request, *args, **kwargs):
-
-		data = json.loads(request.body)
-		form = self.form_class(data)
-
-		if form.is_valid():
-			credentials = form.cleaned_data
-			user = authenticate(username=credentials['username'], password=credentials['password'])
-			if user is not None:
-				login(request, user)
-				session_key = request.session.session_key
-				user_dict = model_to_dict(user, fields=['id', 'username', 'first_name', 'last_name', 'email'])
-				context = {'usuario':user_dict}
-				context['sessionid'] = session_key
-				return self.render_to_json_response(context)
-			else:
-				return HttpResponseForbidden()
-
-
-class ListaFuncionarios(JsonResponseMixin, ListView):
-
-	model = models.Funcionario 
-
-	def get(self, request, *args, **kwargs):
-		if not request.user.is_authenticated:
-			return HttpResponseForbidden()
-		else:
-			return super().get(request, *args, **kwargs)
-
-	def render_to_response(self, context, **response_kwargs):
-
-		return self.render_to_json_response(context, **response_kwargs)
-
-
-class ListaInstituciones(ListaFuncionarios):
-
-	model = models.Institucion 
-
-
-
-@method_decorator(ensure_csrf_cookie, name='dispatch')
-class HomePageView(TemplateView):
-	template_name = 'hamster/home.html'
-
-	def get_context_data(self, **kwargs):
-		context = super().get_context_data(**kwargs)
-		context['saludo'] = 'Hola Hamster'
-		return context
 
 
 
