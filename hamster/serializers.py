@@ -30,16 +30,6 @@ class FuncionarioSerializer(serializers.ModelSerializer):
 		fields = '__all__'
 
 
-class FuncionarioSerializer2(serializers.ModelSerializer):
-
-	#institucion = serializers.StringRelatedField(many=False)
-	institucion = InstitucionSerializer(read_only=True)
-	
-	class Meta:
-		model = Funcionario
-		fields = ['nombre', 'apellido', 'correo', 'institucion']
-
-
 
 class ContribucionSerializer2(serializers.ModelSerializer):
 
@@ -59,18 +49,11 @@ class BeneficiarioSerializer(serializers.ModelSerializer):
 
 
 
-class BeneficiarioSerializer2(serializers.ModelSerializer):
-
-	class Meta:
-		model = Beneficiario
-		exclude = ['direccion']
-
-
 class ContribucionSerializer(serializers.ModelSerializer):
 
 	digitador = serializers.ReadOnlyField(source='digitador.email')
-	funcionario = FuncionarioSerializer2(read_only=True)
-	beneficiario = BeneficiarioSerializer2(read_only=True)
+	funcionario = serializers.PrimaryKeyRelatedField(queryset=Funcionario.objects.all())
+	beneficiario = serializers.PrimaryKeyRelatedField(queryset=Beneficiario.objects.all())
 
 	class Meta:
 		model = Contribucion

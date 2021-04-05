@@ -91,7 +91,7 @@ class Contribucion(TimestampsModel):
 		return "{0}>>C$ {1}>>{2}".format(self.fecha, self.monto, self.tipo)
 
 	class Meta:
-		ordering = ['fecha']
+		ordering = ['-fecha']
 		verbose_name_plural = 'Contribuciones'
 		
 		

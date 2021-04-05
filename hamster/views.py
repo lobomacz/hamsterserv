@@ -7,6 +7,7 @@ from hamster.permissions import IsOwnerOrReadOnly
 from rest_framework import generics, permissions, status, viewsets
 from rest_framework.views import APIView
 from rest_framework.response import Response 
+from rest_framework.decorators import action
 
 
 
@@ -22,41 +23,17 @@ class ContribucionViewSet(viewsets.ModelViewSet):
 	serializer_class = ContribucionSerializer
 	permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
 
-	def perform_create(self, serializer):
-		serializer.save(digitador=self.request.user)
+	@action(detail=True)
+	def por_beneficiario(self, request, pk=None):
+		contribuciones = self.get_queryset().filter(beneficiario=pk)
+		serializer = self.get_serializer(contribuciones, many=True)
+		return Response(serializer.data)
 
-
-''' 
-class ListaContribuciones(generics.ListCreateAPIView):
-
-	"""
-	Vista que obtiene la lista de contribuciones
-	de la base de datos y devuelve un objeto JSON 
-	del resultado del queryset o crea una nueva entrada
-	si el método usado es POST
-	"""
-
-	queryset = Contribucion.objects.all()
-	serializer_class = ContribucionSerializer
-	permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
 	def perform_create(self, serializer):
 		serializer.save(digitador=self.request.user)
 
 
-
-class DetalleContribucion(generics.RetrieveUpdateDestroyAPIView):
-
-	"""
-	Vista que gestiona el detalle de la contribución
-	incluyendo funciones para actualizar y eliminar con los 
-	métodos PUT y DELETE
-	"""
-
-	queryset = Contribucion.objects.all()
-	serializer_class = ContribucionSerializer
-	permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
-'''		
 		
 class BeneficiarioViewSet(viewsets.ModelViewSet):
 
@@ -68,37 +45,6 @@ class BeneficiarioViewSet(viewsets.ModelViewSet):
 	serializer_class = BeneficiarioSerializer
 	permission_classes = [permissions.IsAuthenticated]
 
-
-''' 
-class ListaBeneficiarios(generics.ListCreateAPIView):
-
-	"""
-	Vista que obtiene la lista de beneficiarios
-	de la base de datos y devuelve un objeto JSON 
-	del resultado del queryset o crea una nueva entrada
-	si el método usado es POST
-	"""
-	
-	queryset = Beneficiario.objects.all()
-	serializer_class = BeneficiarioSerializer
-	permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-
-
-
-
-class DetalleBeneficiario(generics.RetrieveUpdateDestroyAPIView):
-
-	"""
-	Vista que gestiona el detalle del beneficiario
-	incluyendo funciones para actualizar y eliminar con los 
-	métodos PUT y DELETE
-	"""
-
-	queryset = Beneficiario.objects.all()
-	serializer_class = BeneficiarioSerializer
-	permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-
-''' 
 				
 
 class FuncionarioViewSet(viewsets.ReadOnlyModelViewSet):
@@ -110,23 +56,6 @@ class FuncionarioViewSet(viewsets.ReadOnlyModelViewSet):
 	permission_classes = [permissions.IsAuthenticated]
 
 
-''' 
-
-class ListaFuncionarios(generics.ListAPIView):
-
-	queryset = Funcionario.objects.all() 
-	serializer_class = FuncionarioSerializer
-	permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-
-
-
-class DetalleFuncionario(generics.RetrieveAPIView):
-
-	queryset = Funcionario.objects.all()
-	serializer_class = FuncionarioSerializer
-	permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-''' 
-
 
 
 class InstitucionViewSet(viewsets.ReadOnlyModelViewSet):
@@ -135,13 +64,6 @@ class InstitucionViewSet(viewsets.ReadOnlyModelViewSet):
 	serializer_class = InstitucionSerializer
 	permission_classes = [permissions.IsAuthenticated]
 	
-
-
-# NO SE USA
-class UserDetail(generics.RetrieveAPIView):
-
-	queryset = User.objects.all()
-	serializer_class = UserSerializer
 	
 
 
@@ -154,7 +76,6 @@ class UserLogin(APIView):
 
 	def post(self, request, format=None):
 
-		print(request.data)
 		uname = request.data['username']
 		pword = request.data['password']
 
