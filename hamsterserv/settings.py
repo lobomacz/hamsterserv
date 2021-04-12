@@ -27,7 +27,8 @@ SECRET_KEY = '&h$*@kcen19u1o$v*_4fstsrpnosmv_rw1$&xi8&818rl&m55f'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+#ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['si.graccs.gob.ni', 'localhost', '127.0.0.1', '[::1]']
 
 
 # Application definition
@@ -55,7 +56,17 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOWED_ORIGINS = [
+    'http://si.graccs.gob.ni',
+    'http://si.graccs.gob.ni:8000',
+    'http://localhost',
+    'http://localhost:8000',
+    'http://localhost:8100',
+    'http://127.0.0.1',
+    'http://127.0.0.1:8000',
+    'http://127.0.0.1:8100',
+]
+
 CORS_ALLOW_CREDENTIALS = True
 
 ROOT_URLCONF = 'hamsterserv.urls'
