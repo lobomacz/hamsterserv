@@ -8,6 +8,7 @@ from rest_framework import generics, permissions, status, viewsets
 from rest_framework.views import APIView
 from rest_framework.response import Response 
 from rest_framework.decorators import action
+import json
 
 
 
@@ -30,6 +31,13 @@ class ContribucionViewSet(viewsets.ModelViewSet):
 		return Response(serializer.data)
 
 
+	@action(detail=False)
+	def count(self, request):
+		cuenta = self.get_queryset().count()
+		datos = json.dumps({'count':cuenta})
+		return Response(datos)
+
+
 	def perform_create(self, serializer):
 		serializer.save(digitador=self.request.user)
 
@@ -44,6 +52,13 @@ class BeneficiarioViewSet(viewsets.ModelViewSet):
 	queryset = Beneficiario.objects.all()
 	serializer_class = BeneficiarioSerializer
 	permission_classes = [permissions.IsAuthenticated]
+
+
+	@action(detail=False)
+	def count(self, request):
+		cuenta = self.get_queryset().count()
+		datos = json.dumps({'count':cuenta})
+		return Response(datos)
 
 				
 
