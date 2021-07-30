@@ -13,20 +13,7 @@ router.register(r'contribuciones', ContribucionViewSet)
 
 urlpatterns = [
 	path('auth/', UserLogin.as_view(), name='user_login'),
-	path('', include(router.urls))
-#	path('contribuciones/', include([
-#			path('', ListaContribuciones.as_view(), name='lista_contribuciones'),
-#			path('<int:pk>/', DetalleContribucion.as_view(), name='detalle_contribucion'),
-#		])),
-#	path('beneficiarios/', include([
-#			path('', ListaBeneficiarios.as_view(), name='lista_beneficiarios'),
-#			path('<str:pk>/', DetalleBeneficiario.as_view(), name='detalle_beneficiario'),
-#		])),
-#	path('funcionarios/', include([
-#			path('', ListaFuncionarios.as_view(), name='lista_funcionarios'),
-#			path('<int:pk>/', DetalleFuncionario.as_view(), name='detalle_funcionario'),
-#		])),
-#	path('instituciones/', ListaInstituciones.as_view(), name='lista_instituciones'),
+	path('', include(router.urls)),
 ]
 
 #urlpatterns = format_suffix_patterns(urlpatterns)

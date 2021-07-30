@@ -26,7 +26,7 @@ class Funcionario(models.Model):
 	apellido = models.CharField(max_length=25)
 	correo = models.EmailField()
 	telefono = models.CharField(help_text="Formato: 8888-8888", max_length=9)
-	usuario = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+	usuario = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, limit_choices_to={'is_active':True, 'groups__name__contains':'funcionarios_publicos'})
 	institucion = models.ForeignKey(Institucion, on_delete=models.CASCADE)
 
 	class Meta:

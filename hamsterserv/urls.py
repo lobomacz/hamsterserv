@@ -13,11 +13,26 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.contrib import admin
+# from django.contrib import admin
 from django.urls import include, path
+from django.conf import settings
+from django.conf.urls.static import static
+from hamsterserv.admin import hamster_admin, suir_admin
+from suir.views import *
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('hamster-admin/', hamster_admin.urls),
     path('hamster/', include('hamster.urls')),
-    path('api-auth/', include('rest_framework.urls')),
+    path('suir-admin/', suir_admin.urls),
+    #path('suir/', include('suir.urls')),
+    path('ckeditor/', include('ckeditor_uploader.urls')),
+    path('', InicioView.as_view(), name='inicio'),
+    path('noticias/', ListaNoticiasView.as_view(), name='lista_noticias'),
+    path('noticias/<slug:slug>/', DetalleNoticiaView.as_view(), name='detalle_noticia'),
+    path('informes/', ListaInformesView.as_view(), name='lista_informes'),
+    path('informes/<slug:slug>/', DetalleInformeView.as_view(), name='detalle_informe'),
+    path('indicadores/', ListaIndicadoresView.as_view(), name='lista_indicadores'),
+    path('indicadores/<int:pk>/', DetalleIndicadorView.as_view(), name='detalle_indicador'),
 ]
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -30,19 +30,27 @@ DEBUG = True
 #ALLOWED_HOSTS = ['*']
 ALLOWED_HOSTS = ['si.graccs.gob.ni', 'localhost', '127.0.0.1', '[::1]']
 
+# X_FRAME_OPTIONS -> default 'DENY'
+X_FRAME_OPTIONS = 'SAMEORIGIN'
+
 
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
+    'django.contrib.admin.apps.SimpleAdminConfig',  # 'django.contrib.admin', -- Reemplazado para implementar admin personalizado
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'corsheaders',
+    'bootstrap4',
+    'django_bootstrap_icons',
+    'corsheaders',  
     'rest_framework',
     'hamster',
+    'suir',
+    'ckeditor',
+    'ckeditor_uploader',
 ]
 
 MIDDLEWARE = [
@@ -80,6 +88,8 @@ TEMPLATES = [
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
+                'django.template.context_processors.media',   #Agregado para usar archivos cargados por usuarios en los templates
+                'django.template.context_processors.static',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
@@ -148,6 +158,13 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
+# Media upload storage
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media/') # '/var/www/graccs.gob.ni/media/'
+MEDIA_URL = '/media/'
+
+# Django rest_framework configurations
+
 REST_FRAMEWORK = {
     
     # Usamos los permisos estándar de Django de django.contrib.auth,
@@ -162,4 +179,71 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES' : [
         'rest_framework.authentication.BasicAuthentication'
     ],
+}
+
+# Django WYSIWYG settings for rich text editor with CKEditor
+
+# DJANGO_WYSIWYG_FLAVOR = 'ckeditor'
+
+CKEDITOR_BASEPATH = '/static/ckeditor/ckeditor/'
+
+CKEDITOR_UPLOAD_PATH = 'publicaciones/'
+
+CKEDITOR_IMAGE_BACKEND = 'pillow'
+
+CKEDITOR_THUMBNAIL_SIZE = (75, 75)
+
+CKEDITOR_RESTRICT_BY_USER = True
+
+CKEDITOR_BROWSE_SHOW_DIRS = True
+
+CKEDITOR_CONFIGS = {
+    'default': {
+        'skin': 'moono-lisa',
+        #'skin': 'office2013',
+        'toolbar_Basic': [
+            ['Source', '-', 'Bold', 'Italic'],
+        ],
+        'toolbar_SuirToolbar': [
+            {'name': 'document', 'items': ['Source', '-', 'Preview']},
+            {'name': 'clipboard', 'items': ['Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord', '-', 'Undo', 'Redo']},
+            {'name': 'editing', 'items': ['Find', 'Replace', '-', 'SelectAll']},
+            '/',
+            {'name': 'basicStyles', 'items': ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript', '-', 'RemoveFormat']},
+            {'name': 'paragraph', 'items': ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', 'CreateDiv', '-',
+            'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock']},
+            {'name': 'links', 'items': ['Link', 'Unlink', 'Anchor']},
+            {'name': 'insert', 'items': ['Image', 'Embed', 'Youtube', 'Table', 'HorizontalRule', 'SpecialChar']},
+            '/',
+            {'name': 'styles', 'items': ['Styles', 'Format', 'Font', 'FontSize']},
+            {'name': 'colors', 'items': ['TextColor', 'BGColor']},
+            {'name': 'tools', 'items': ['Maximize', 'ShowBlocks']},
+        ],
+        'toolbar': 'SuirToolbar',
+        'tabSpaces': 4,
+        'height': 291,
+        'width': '100%',
+        'removePlugins': ['stylesheetparser', 'image'],
+        'allowedContent': True,
+        'extraAllowedContent': 'iframe[*]',
+        'extraPlugins': ','.join([
+            'autolink',
+            'autoembed',
+            'clipboard',
+            'dialog',
+            'dialogui',
+            'embedsemantic',
+            'image2',
+            'iframe',
+            'iframedialog',
+            'language',
+            'uploadimage',
+            'widget',
+            'youtube',
+            ]),
+    }
+}
+
+SUIR_CONF = {
+    'paginas': 12,
 }

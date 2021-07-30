@@ -1,0 +1,49 @@
+{% if carrusel and carrusel.count > 0 or promovidos and promovidos.count > 0 %}
+<div class="container">
+	<div class="row">
+		<div class="col-8 mx-auto">
+			<div
+				id="suirCarousel" 
+				class="carousel slide u-margin-top-realhuge"
+				data-ride="carousel"
+			>
+				<div class="carousel-indicators">
+					{% with ''|center:carrusel_count as range %}
+						{% for _ in range %}
+							<button type="button" data-target="#suirCarousel" data-slide-to="{{ forloop.counter0 }}" aria-label="Slide {{ forloop.counter0 }}"></button>
+						{% endfor %}
+					{% endwith %}
+				</div>
+				<div class="carousel-inner">
+					{% if carrusel and carrusel.count > 0 %}
+						{% for slide in carrusel %}
+							<div class="carousel-item{% if forloop.counter == 1 %} active{% endif %}">
+								<img class="d-block w-100" src="{{ slide.imagen.path }}" alt="{{ slide.titulo | lower }}">
+								<div class="carousel-caption d-none d-md-block">
+									<h5>{{ slide.titulo | upper }}</h5>
+									{% if slide.descripcion %}
+										<p>{{ slide.descripcion | lower | capfirst }}</p> 
+									{% endif %}
+								</div>
+							</div>
+						{% endfor %}
+					{% endif %}
+					{% if promovidos and promovidos.count > 0 %}
+						{% for slide in promovidos %}
+							<div class="carousel-item{% if not carrusel or carrusel.count == 0 %} active{% endif %}">
+								<img class="d-block w-100" src="{{ slide.portada.path }}" alt="{{ slide.titulo | lower }}">
+								<div class="carousel-caption d-none d-md-block">
+									<a class="text-decoration-none text-reset" href="{{ slide.get_absolute_url }}">
+										<h5>{{ slide.titulo | upper }}</h5>
+									</a>
+									
+								</div>
+							</div>
+						{% endfor %}
+					{% endif %}
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{% endif %}

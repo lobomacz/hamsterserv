@@ -64,7 +64,7 @@ class BeneficiarioViewSet(viewsets.ModelViewSet):
 
 class FuncionarioViewSet(viewsets.ReadOnlyModelViewSet):
 	"""
-	Este viewset va a gestionar las operaciones CRUD de Funcionarios
+	Este viewset va a gestionar las consultas de Funcionarios
 	""" 
 	queryset = Funcionario.objects.all()
 	serializer_class = FuncionarioSerializer
@@ -74,6 +74,9 @@ class FuncionarioViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class InstitucionViewSet(viewsets.ReadOnlyModelViewSet):
+	"""
+	Este viewset gestiona las consultas de Institución.
+	"""
 
 	queryset = Institucion.objects.all()
 	serializer_class = InstitucionSerializer
