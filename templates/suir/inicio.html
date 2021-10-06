@@ -1,7 +1,7 @@
 {% extends './base.html' %}
 
 {% block header %}
-	{% include './SuirHeader.html' with seccion=tipo %}
+	{% include './SuirHeader.html' %}
 {% endblock %}
 
 {% if carrusel %}
@@ -13,13 +13,13 @@
 {% block content %}
 
 <div>
-	{% if anuncios and anuncios.count > 0 %}
+	{% if anuncios.exists and anuncios.count > 0 %}
 		<div class="container anuncio-container d-none d-md-block">
 			<div class="row">
-				<div class="col-8 mx-auto">
+				<div class="col-8 mx-auto text-center">
 					<a class="anuncio-link" href="{{ anuncios.0.url }}" target="_blank">
 							<img
-						src="{{ anuncios.0.imagen.path }}"
+						src="{{ anuncios.0.imagen.url }}"
 						title="{{ anuncios.0.titulo }}"
 						class="anuncio-img rounded"
 						>
@@ -31,16 +31,16 @@
 	
 	{% if noticias and noticias.count > 0 %}
 		<section id="seccionNoticias" class="seccion-publicacion">
-			{% include 'RowPublicaciones.html' with tipo='noticias' titulo='noticias' lista=noticias only %}
+			{% include './RowPublicaciones.html' with tipo='noticias' titulo='noticias' lista=noticias only %}
 		</section>
 	{% endif %}
 
-	{% if anuncios and anuncios.count > 1 %}
-		<div v-if="anuncios && anuncios.length > 1" class="container anuncio-container d-none d-md-block">
+	{% if anuncios.exists and anuncios.count > 1 %}
+		<div class="container anuncio-container d-none d-md-block">
 			<div class="row">
-				<div class="col-8 mx-auto">
+				<div class="col-8 mx-auto text-center">
 					<a class="anuncio-link" href="{{ anuncios.1.url }}" target="_blank">
-							<img src="{{ anuncios.1.imagen.path }}" title="{{ anuncios.1.titulo }}" class="anuncio-img rounded">
+							<img src="{{ anuncios.1.imagen.url }}" title="{{ anuncios.1.titulo }}" class="anuncio-img rounded">
 					</a>
 				</div>
 			</div>
@@ -49,7 +49,7 @@
 
 	{% if informes and informes.count > 0 %}
 		<section id="seccionInformes" class="seccion-publicacion">
-			{% include 'RowPublicaciones.html' with tipo='informes' titulo='Gestión Pública' lista=informes only %}
+			{% include './RowPublicaciones.html' with tipo='informes' titulo='Gestión Pública' lista=informes only %}
 		</section>
 	{% endif %}
 

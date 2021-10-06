@@ -38,6 +38,9 @@ class Carrusel(SoftDeletionModel):
 
 	class Meta:
 		ordering = ['activo', 'titulo']
+
+	def __str__(self):
+		return self.titulo
 	
 	
 
@@ -63,7 +66,7 @@ class Tabla(TimestampsModel):
 	tabla = models.CharField(max_length=25)
 
 	def __str__(self):
-		return self.tabla
+		return self.tabla.upper()
 
 
 
@@ -74,7 +77,7 @@ class DetalleTabla(TimestampsModel):
 	tabla = models.ForeignKey(Tabla, on_delete=models.CASCADE)
 
 	def __str__(self):
-		return self.elemento
+		return self.elemento.upper()
 
 	class Meta:
 		ordering = ['tabla', 'id']
@@ -135,6 +138,7 @@ class Comunidad(SoftDeletionModel, TimestampsModel):
 
 class Indicador(SoftDeletionModel, TimestampsModel):
 	"""Clase para el modelo Indicador"""
+	
 	titulo = models.CharField('Título', max_length=150)	
 	descripcion = models.CharField(max_length=250)
 	sector = models.ForeignKey(DetalleTabla, on_delete=models.RESTRICT, limit_choices_to=Q(tabla__tabla='sectores'), help_text="Sector social al que pertenece el indicador.", related_name='indicadores_sectores', related_query_name='indicador_sector')
@@ -143,15 +147,12 @@ class Indicador(SoftDeletionModel, TimestampsModel):
 	tipo_valor = models.ForeignKey(DetalleTabla, on_delete=models.SET_NULL, limit_choices_to=Q(tabla__tabla='tipos_valor'), null=True, related_name='indicadores_tipos_valores', related_query_name='indicador_tipo_valor', help_text='Tipo de valor del indicador.')
 	periodicidad = models.ForeignKey(DetalleTabla, on_delete=models.SET_NULL, limit_choices_to=Q(tabla__tabla='periodos'), null=True, related_name='indicadores_periodos', related_query_name='indicador_periodo')
 	portada = models.ImageField('Portada', upload_to='suir/img/indicadores/', null=True)
-	ficha = models.FileField('Ficha Técnica', upload_to='suir/docs/indicadores/', help_text="Documento en Formato PDF", null=True)
+	ficha = models.FileField('Ficha Técnica', upload_to='suir/docs/indicadores/', help_text="Documento en Formato PDF", null=True, blank=True)
 	tags = models.TextField(null=True, blank=True)
 	entidad = models.ForeignKey(Entidad, on_delete=models.RESTRICT, help_text='Entidad responsable del seguimiento del indicador.')
 	colaboradores = models.ManyToManyField('Institucion', help_text='Instituciones colaboradoras en la recolección de datos para el indicador.')
 	responsable = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='indicadores_responsables', related_query_name='indicador_responsable')
-	desagregaciones = models.ManyToManyField(DetalleTabla, help_text='Desagregaciones del indicador', related_name='+', limit_choices_to=Q(tabla__tabla='desagregaciones')
-	#desagregacion = models.ForeignKey(DetalleTabla, on_delete=models.SET_NULL, limit_choices_to={'tabla__tabla':'desagregaciones'}, null=True, related_name='indicadores_desagregaciones', related_query_name='indicador_desagregacion')
-	#desagregacion_sexo = models.BooleanField('Desagregación por sexo')
-	#desagregacion_etnia = models.BooleanField('Desagregación por etnia')
+	desagregaciones = models.ManyToManyField(DetalleTabla, help_text='Desagregaciones del indicador', related_name='+', limit_choices_to=Q(tabla__tabla='desagregaciones'))
 	fuente = models.CharField('Fuente de datos', max_length=150, help_text="Fuente donde se obtienen los datos/valores del indicador.")
 	marco = models.CharField('Marco legal', max_length=150, help_text="Marco legal que respalda el seguimiento del indicador.")
 	estado = models.ForeignKey(DetalleTabla, on_delete=models.SET_NULL, limit_choices_to=Q(tabla__tabla='estados_pub'), help_text="Posibles valores: borrador, pendiente, publicado", null=True, related_name='indicadores_estados', related_query_name='indicador_estado')
@@ -174,7 +175,7 @@ class Indicador(SoftDeletionModel, TimestampsModel):
 
 class ValorIndicador(SoftDeletionModel, TimestampsModel):
 	"""Clase del modelo ValorIndicador""" 
-	fecha = models.DateField(auto_now_add=True)
+	fecha = models.DateField('Fecha', auto_now_add=True)
 	fecha_inicio = models.DateField('Inicio de la captación')
 	fecha_final = models.DateField('Final de la captación')
 	indicador = models.ForeignKey(Indicador, on_delete=models.CASCADE, limit_choices_to={'activo':True, 'seguimiento':True})
@@ -183,18 +184,20 @@ class ValorIndicador(SoftDeletionModel, TimestampsModel):
 	digitador = models.ForeignKey(User, on_delete=models.RESTRICT, related_name='valores_digitadores', related_query_name='valor_digitador')
 	supervisor = models.ForeignKey(User, on_delete=models.RESTRICT, null=True, limit_choices_to={'is_staff':True, 'is_active':True, 'groups__name__contains':'supervisor_suir'}, related_name='valores_supervisores', related_query_name='valor_supervisor')
 	codigo_ficha = models.CharField('Código de ficha', max_length=50, null=True, blank=True)
-	ficha = models.FileField(upload_to='suir/docs/fichas/', help_text='Ficha en formato PDF', null=True)
-	comunidad = models.ForeignKey(Comunidad, on_delete=models.RESTRICT, default=1)
-	#nivel = models.ForeignKey(DetalleTabla, on_delete=models.RESTRICT, limit_choices_to={'tabla__tabla':'desagregaciones'}, help_text="Nivel de desagregación. Ej. comunidad, municipio o región.", related_name='valores_desagregaciones', related_query_name='valor_desagregacion')
-	sexo = models.CharField(max_length=1, choices=[('M', 'Masculino'), ('F', 'Femenino')], null=True, blank=True)
-	etnia = models.ForeignKey(DetalleTabla, on_delete=models.RESTRICT, null=True, limit_choices_to=Q(tabla__tabla='etnias'), related_name='valores_etnias', related_query_name='valor_etnia')
-	rango_edad = models.ForeignKey(DetalleTabla, on_delete=models.RESTRICT, null=True, limit_choices_to=Q(tabla__tabla='rangos_edad'), related_name='valores_rangos_edad', related_query_name='valor_rango_edad')
-	valor = models.DecimalField(max_digits=8, decimal_places=2)
+	ficha = models.FileField(upload_to='suir/docs/fichas/', help_text='Ficha en formato PDF', null=True, blank=True)
+	comunidad = models.ForeignKey(Comunidad, on_delete=models.RESTRICT, default=1, help_text='Comunidad donde se levantó el dato.')
+	sexo = models.CharField('Sexo', max_length=1, choices=[('M', 'Masculino'), ('F', 'Femenino')], null=True, blank=True, help_text='Si aplica al tipo de valor del indicador.')
+	etnia = models.ForeignKey(DetalleTabla, on_delete=models.RESTRICT, null=True, blank=True, limit_choices_to=Q(tabla__tabla='etnias'), related_name='valores_etnias', related_query_name='valor_etnia')
+	rango_edad = models.ForeignKey(DetalleTabla, on_delete=models.RESTRICT, help_text='Rango de edad (si aplica).', null=True, limit_choices_to=Q(tabla__tabla='rangos_edad'), related_name='valores_rangos_edad', related_query_name='valor_rango_edad')
+	valor = models.DecimalField('Valor', max_digits=8, decimal_places=2)
 	estado = models.ForeignKey(DetalleTabla, on_delete=models.RESTRICT, limit_choices_to=Q(tabla__tabla='estados_pub'), help_text="Posibles valores: borrador, pendiente, publicado", related_name='valores_estados', related_query_name='valor_estado')
 
 	class Meta:
 		ordering = ['indicador', '-fecha']
 		verbose_name_plural = 'Valores de indicador'
+
+	def get_absolute_url(self):
+		return reverse('detalle_valor_indicador', kwargs={'pk':self.pk})
 
 
 
@@ -250,10 +253,10 @@ class LinkRed(SoftDeletionModel):
 
 class Publicacion(SoftDeletionModel, TimestampsModel):
 	"""Clase del modelo Publicacion"""
-	titulo = models.CharField('Título', max_length=100)
-	slug = models.SlugField(max_length=150, primary_key=True)
+	titulo = models.CharField('Título', max_length=250)
+	slug = models.SlugField(max_length=300, primary_key=True)
 	fecha = models.DateField()
-	autor = models.ForeignKey(User, on_delete=models.RESTRICT, limit_choices_to={'is_staff':True, 'is_active':True, 'groups__name__contains':'publicador'})
+	autor = models.ForeignKey(User, on_delete=models.RESTRICT)
 	portada = models.ImageField(upload_to='media/suir/img/publicaciones/')
 	contenido = RichTextUploadingField(
 		config_name='default', 
@@ -279,23 +282,29 @@ class Publicacion(SoftDeletionModel, TimestampsModel):
 			'plugin.js',
 			)
 		])
-	documento = models.FileField(upload_to='media/suir/docs/publicaciones/', null=True)
-	tags = models.TextField(null=True, blank=True)
-	tipo = models.ForeignKey(DetalleTabla, on_delete=models.SET_NULL, limit_choices_to=Q(tabla__tabla='tipos_pub'), null=True, related_name='publicaciones_tipos', related_query_name='publicacion_tipo')
-	estado = models.ForeignKey(DetalleTabla, on_delete=models.RESTRICT, limit_choices_to=Q(tabla__tabla='estados_pub'), help_text="Posibles valores: borrador, pendiente, publicado", related_name='publicaciones_estados', related_query_name='publicacion_estado')
+	documento = models.FileField(upload_to='media/suir/docs/publicaciones/', null=True, blank=True)
+	tags = models.TextField('Etiquetas', null=True, blank=True, help_text='Etiquetas separadas por coma.')
+	tipo = models.ForeignKey(DetalleTabla, on_delete=models.SET_NULL, null=True, related_name='publicaciones_tipos', related_query_name='publicacion_tipo')
+	estado = models.ForeignKey(DetalleTabla, on_delete=models.RESTRICT, help_text="Posibles valores: borrador, pendiente, publicado", related_name='publicaciones_estados', related_query_name='publicacion_estado')
 	carrusel = models.BooleanField('Promovido al carrusel', default=False)
-	publicado = models.DateField(null=True)
+	publicado = models.DateField('Fecha publicado', null=True, blank=True, help_text="Fecha de publicación")
 
 	def __str__(self):
 		return self.titulo.upper()
 
 	def get_absolute_url(self):
 		if self.tipo.elemento == 'noticia':
-			return reverse('detalle_noticia', kwargs={'pk':self.pk})
+			return reverse('detalle_noticia', kwargs={'slug':self.pk})
 		else:
-			return reverse('detalle_informe', kwargs={'pk':self.pk})
+			return reverse('detalle_informe', kwargs={'slug':self.pk})
 
 	class Meta:
+		permissions = [
+		('crear_noticia', 'Redacta Noticias'),
+		('crear_informe', 'Redacta Informes'),
+		('publicar_noticia', 'Publica Noticias'),
+		('publicar_informe', 'Publica Informes')
+		]
 		ordering = ['tipo', 'estado', '-fecha', 'autor']
 		verbose_name = 'Publicación'
 		verbose_name_plural = 'Publicaciones'

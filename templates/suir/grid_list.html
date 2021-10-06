@@ -1,13 +1,52 @@
-{% extends 'base.html' %}
+{% extends './base.html' %}
 
 {% block header %}
-	{% include 'SuirHeader.html' %}
+	{% include './SuirHeader.html' with seccion=tipo %}
 {% endblock %}
 
 {% block content %}
-	{% include 'ListaPublicaciones.html'  %}
+
+	<div class="container publicacion-list">
+		<div class="row">
+			<div class="col">
+				<h1 class="{% if tipo == 'noticia' %} u-bg-tertiary {% else %}  u-bg-secondary {% endif %} section-header">{{ tipo | upper }}{{ page_obj | pluralize | upper }} &#10022;</h1>
+			</div>
+		</div>
+		
+		<div class="row">
+			<div class="col-4 mx-auto text-center">
+				<div class="d-inline-block mx-auto">
+					{% include './Pagination.html' with page_obj=page_obj rango_paginas=rango_paginas %}
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col mx-auto">
+				
+				{% load suir_extras %}
+				
+				{% with por_fila=4 %}
+					{% grid_range page_obj por_fila as filas %}
+
+					{% for fila in filas %}
+						{% list_slice page_obj fila por_fila as lista %}
+						{% include './RowPublicaciones.html' with listrow=True %}
+					{% endfor %}
+				{% endwith %}
+				
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-4 mx-auto text-center">
+				<div class="d-inline-block mx-auto">
+					{% include './Pagination.html' with page_obj=page_obj rango_paginas=rango_paginas %}
+				</div>
+			</div>
+		</div>
+	</div>
+
 {% endblock %}
 
 {% block footer %}
-	{% include 'SuirFooter.html' %}
+	{% include './SuirFooter.html' %}
 {% endblock %}

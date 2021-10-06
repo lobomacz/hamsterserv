@@ -27,12 +27,31 @@ urlpatterns = [
     #path('suir/', include('suir.urls')),
     path('ckeditor/', include('ckeditor_uploader.urls')),
     path('', InicioView.as_view(), name='inicio'),
-    path('noticias/', ListaNoticiasView.as_view(), name='lista_noticias'),
-    path('noticias/<slug:slug>/', DetalleNoticiaView.as_view(), name='detalle_noticia'),
-    path('informes/', ListaInformesView.as_view(), name='lista_informes'),
-    path('informes/<slug:slug>/', DetalleInformeView.as_view(), name='detalle_informe'),
-    path('indicadores/', ListaIndicadoresView.as_view(), name='lista_indicadores'),
-    path('indicadores/<int:pk>/', DetalleIndicadorView.as_view(), name='detalle_indicador'),
+    #path('login/', LoginView.as_view(), name='login'),
+    #path('logout/', LogoutView.as_view(), name='logout'),
+    path('noticias/', include([
+        path('', ListaPublicacionesView.as_view(tipo='noticia'), name='lista_noticias'),
+        path('buscar/', ListaFiltroPublicacionesView.as_view(tipo='noticia'), name='buscar_noticias'),
+        #path('nuevo/', CreatePublicacionView.as_view(tipo='noticia'), name='nueva_noticia'),
+        path('<slug:slug>/', DetallePublicacionView.as_view(), name='detalle_noticia'),
+        path('<slug:slug>/update/', UpdatePublicacionView.as_view(), name='update_noticia'),
+        ])),
+    path('informes/', include([
+        path('', ListaPublicacionesView.as_view(tipo='informe'), name='lista_informes'),
+        path('buscar/', ListaFiltroPublicacionesView.as_view(tipo='informe'), name='buscar_informes'),
+        #path('nuevo/', CreatePublicacionView.as_view(tipo='informe'), name='nuevo_informe'),
+        path('<slug:slug>/', DetallePublicacionView.as_view(), name='detalle_informe'),
+        path('<slug:slug>/update/', UpdatePublicacionView.as_view(), name='update_informe'),
+        ])),
+    path('indicadores/', include([
+        path('', ListaIndicadoresView.as_view(), name='lista_indicadores'),
+        path('buscar/', ListaFiltroIndicadoresView.as_view(), name='buscar_indicadores'),
+        path('<int:pk>/', DetalleIndicadorView.as_view(), name='detalle_indicador'),
+        #path('<int:pk>/valor/nuevo/', ValorIndicadorView.as_view(), name='create_valor_indicador'),
+        path('valor/<int:pk>/', DetalleValorView.as_view(), name='detalle_valor_indicador'),
+        #path('valor/<int:pk>/update/', UpdateValorIndicadorView.as_view(), name='update_valor_indicador'),
+        ])),
+    
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

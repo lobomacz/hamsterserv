@@ -1,6 +1,6 @@
 <!-- Barra de navegación -->
 {% load static %}
-{% load bootstrap4 %}
+{% load django_bootstrap5 %}
 {% load bootstrap_icons %}
 <nav class="navbar preload" role="navigation">
     <div class="navbar-container">
@@ -9,7 +9,7 @@
             <div class="navbar-header u-align-middle">
                 <div class="navbar-header__logo d-inline-block">
                     <button type="button" class="menu-button d-sm-none d-xs-inline-block" 
-                            data-action="toggle" data-target="body" data-toggle="menu-visible">
+                            data-bs-target="body" data-bs-action="toggle" data-bs-toggle="menu-visible">
                         <span class="menu-button__icon menu-button__icon-1"></span>
                         <span class="menu-button__icon menu-button__icon-2"></span>
                         <span class="menu-button__icon menu-button__icon-3"></span>
@@ -20,15 +20,15 @@
                 </div>
             </div>
             <div class="navbar-text d-none d-md-inline-block">
-                <h4 class="navbar-text__title text-uppercase">
+                <h4 class="navbar-text__title text-uppercase text-light">
                         <!-- Pendiente nombre de la sección -->
                         {% if seccion %}
-                            {{ seccion | upper }}
+                            {{ seccion | upper }}{% if seccion == 'indicador' %}ES{% else %}S{% endif %}
                         {% else %}
                             {{ 'Sistema de Información Regional' | upper }}
                         {% endif %}
                 </h4>
-                <h5 class="navbar-text__date">{{ fecha|date:"d/m/Y" }}</h5>
+                <h5 class="navbar-text__date text-light">{{ fecha|date:"d/m/Y" }}</h5>
             </div>
             <div class="navbar-menu u-align-middle">
                 <ul class="nav navbar-menu__list">
