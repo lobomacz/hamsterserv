@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import User
 from hamster.models import Institucion, Funcionario, Beneficiario, Contribucion
 from rest_framework import serializers
 
@@ -8,9 +8,11 @@ from rest_framework import serializers
 
 class UserSerializer(serializers.ModelSerializer):
 
+	funcionario = serializers.PrimaryKeyRelatedField(many=False, read_only=True)
+
 	class Meta:
 		model = User
-		fields = '__all__' #['id', 'username', 'email', 'is_staff']
+		fields = '__all__' 
 
 
 class InstitucionSerializer(serializers.ModelSerializer):
@@ -24,6 +26,7 @@ class FuncionarioSerializer(serializers.ModelSerializer):
 
 	#institucion = serializers.StringRelatedField(many=False)
 	institucion = InstitucionSerializer(read_only=True)
+	usuario = UserSerializer(read_only=True)
 	
 	class Meta:
 		model = Funcionario
@@ -51,7 +54,6 @@ class BeneficiarioSerializer(serializers.ModelSerializer):
 
 class ContribucionSerializer(serializers.ModelSerializer):
 
-	digitador = serializers.ReadOnlyField(source='digitador.email')
 	funcionario = serializers.PrimaryKeyRelatedField(queryset=Funcionario.objects.all())
 	beneficiario = serializers.PrimaryKeyRelatedField(queryset=Beneficiario.objects.all())
 
