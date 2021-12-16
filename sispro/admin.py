@@ -8,7 +8,7 @@ from sispro.models import *
 class SisproAdminSite(AdminSite):
 	site_header = 'Admin SISPRO'
 	site_title = site_header
-	site_url = reverse('index_sispro')
+	site_url = '/sispro/'
 	index_title = site_title
 
 

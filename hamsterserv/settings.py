@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'corsheaders',  
     'hamster',
     'suir',
+    'sispro',
     'ckeditor',
     'ckeditor_uploader',
 ]

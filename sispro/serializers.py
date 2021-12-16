@@ -1,6 +1,7 @@
 from rest_framework_gis.serializers import GeoFeatureModelSerializer
 from rest_framework import serializers
 from django.contrib.auth.models import User
+from suir.models import DetalleTabla
 from sispro.models import *
 
 # Serializadores de modelos
@@ -45,9 +46,9 @@ class sBono(serializers.ModelSerializer):
 
 class sProtagonistaBono(GeoFeatureModelSerializer):
 
-	protagonista = serializers.PrimaryKeyRelatedField(many=False)
-	bono = serializers.PrimaryKeyRelatedField(many=False)
-	proyecto = serializers.StringRelatedField(many=False)
+	protagonista = serializers.PrimaryKeyRelatedField(queryset=Protagonista.objects.all())
+	bono = serializers.PrimaryKeyRelatedField(queryset=Bono.objects.all())
+	proyecto = serializers.PrimaryKeyRelatedField(queryset=Proyecto.objects.all())
 	digitador = UserSerializer(many=False, read_only=True)
 
 	class Meta:
@@ -79,9 +80,9 @@ class sKeyProtagonistaBono(serializers.ModelSerializer):
 
 class sCapitalizacion(serializers.ModelSerializer):
 
-	p_bono = serializers.PrimaryKeyRelatedField(many=False)
-	articulo = serializers.PrimaryKeyRelatedField(many=False)
-	unidad = serializers.PrimaryKeyRelatedField(many=False)
+	p_bono = serializers.PrimaryKeyRelatedField(queryset=ProtagonistaBono.objects.all())
+	articulo = serializers.PrimaryKeyRelatedField(queryset=DetalleTabla.objects.filter(tabla__tabla="articulos"))
+	unidad = serializers.PrimaryKeyRelatedField(queryset=DetalleTabla.objects.filter(tabla__tabla="unidades"))
 	digitador = UserSerializer(many=False, read_only=True)
 
 	class Meta:
@@ -98,8 +99,8 @@ class sProtagonistaString(serializers.ModelSerializer):
 
 class sCapacitacion(serializers.ModelSerializer):
 
-	protagonista = serializers.PrimaryKeyRelatedField(many=False)
-	bono = serializers.PrimaryKeyRelatedField(many=False)
+	protagonista = serializers.PrimaryKeyRelatedField(queryset=Protagonista.objects.all())
+	bono = serializers.PrimaryKeyRelatedField(queryset=Bono.objects.all())
 	protagonista_str = sProtagonistaString(many=False, read_only=True)
 
 	class Meta:
@@ -109,8 +110,8 @@ class sCapacitacion(serializers.ModelSerializer):
 
 class sAporte(serializers.ModelSerializer):
 
-	p_bono = serializers.PrimaryKeyRelatedField(many=False)
+	p_bono = serializers.PrimaryKeyRelatedField(queryset=ProtagonistaBono.objects.all())
 
 	class Meta:
-		model = AporteBono
+		model = Aporte
 		fields = '__all__'

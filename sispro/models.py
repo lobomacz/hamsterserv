@@ -31,7 +31,6 @@ class Tecnico(SoftDeletionModel, TimestampsModel):
 	institucion = models.ForeignKey(Institucion, on_delete=models.RESTRICT)
 	usuario = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, help_text='Requerido sólo si el usuario tendrá acceso a digitar o extraer datos.')
 	activo = models.BooleanField(default=True)
-	digitador = models.ForeignKey(User, on_delete=models.RESTRICT)
 
 	class Meta:
 		ordering = ['institucion', 'apellidos', 'nombres']
@@ -192,7 +191,7 @@ class Capitalizacion(TimestampsModel):
 	digitador = models.ForeignKey(User, on_delete=models.RESTRICT)
 
 	class Meta:
-		ordering = ['protagonista_bono']
+		ordering = ['p_bono']
 
 
 # Tabla de Capacitaciones
@@ -205,7 +204,7 @@ class Capacitacion(SoftDeletionModel, TimestampsModel):
 	protagonista = models.ForeignKey(Protagonista, on_delete=models.CASCADE)
 	bono = models.ForeignKey(Bono, on_delete=models.RESTRICT, help_text="Bono/Plan correspondiente a la capacitación.")
 	tema = models.CharField("Tema de la capacitación", max_length=150)
-	comunidad = models.ForeignKey(Comunidad, on_delete=RESTRICT, null=True)
+	comunidad = models.ForeignKey(Comunidad, on_delete=models.RESTRICT, null=True)
 	fecha_inicio = models.DateField("Fecha de inicio")
 	fecha_final = models.DateField("Fecha de culminación")
 	digitador = models.ForeignKey(User, on_delete=models.RESTRICT)
@@ -254,7 +253,7 @@ class Aporte(SoftDeletionModel, TimestampsModel):
 		return "{0}/{1} - C$ {2}".format(self.mes, self.anio, self.monto)
 
 	class Meta:
-		ordering = ['protagonista_bono', 'anio', 'mes']
+		ordering = ['p_bono', 'anio', 'mes']
 		
 
 

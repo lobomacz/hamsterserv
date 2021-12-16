@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404, get_list_or_404
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout 
-from django.db.models improt Q
+from django.db.models import Q
 from django.urls import reverse_lazy
 from django.conf import settings
 from django.utils import timezone
@@ -10,7 +10,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework_gis import filters
-from django_filters.rest_framework import SearchFilter
+from rest_framework.filters import SearchFilter
 # from django.contrib.auth.mixins import LoginRequiredMixin
 # from django.views import View 
 # from django.views.generic.base import TemplateView
@@ -18,7 +18,7 @@ from django_filters.rest_framework import SearchFilter
 # from django.views.generic.detail import DetailView
 # from django.views.generic.edit import CreateView, UpdateView, FormView
 from django.db import transaction
-from sispro.permissions.serializers import IsOwnerOrReadOnly
+from sispro.permissions import IsOwnerOrReadOnly
 from sispro.serializers import *
 from sispro.models import *
 #from sispro.forms import *
@@ -91,7 +91,7 @@ class ProtagonistasViewSet(viewsets.ModelViewSet):
 
 
 # ViewSet de Bonos entregados
-class ProtagonistaBonoViewSet(DigitadorMixin, viewsets.ModelViewSet):
+class ProtagonistasBonosViewSet(DigitadorMixin, viewsets.ModelViewSet):
 
 	queryset = ProtagonistaBono.objects.filter(bono__tipo__elemento='bono')
 	filterset_fields = ['protagonista__cedula']
@@ -101,7 +101,7 @@ class ProtagonistaBonoViewSet(DigitadorMixin, viewsets.ModelViewSet):
 
 
 # ViewSet de Planes de Inversión entregados
-class PlanesInversionViewSet(ProtagonistaBonoViewSet):
+class PlanesInversionViewSet(ProtagonistasBonosViewSet):
 
 	queryset = ProtagonistaBono.objects.filter(bono__tipo__elemento='plan de inversion')
 
@@ -118,9 +118,9 @@ class CapitalizacionViewSet(DigitadorMixin, viewsets.ModelViewSet):
 
 
 # ViewSet de Aporte a Planes de inversión.
-class AporteViewSet(DigitadorMixin, CapitalizacionViewSet):
+class AporteViewSet(CapitalizacionViewSet):
 
-	queryset = Aporte.objects.filter(bono__tipo__elemento='plan de inversion')
+	queryset = Aporte.objects.filter(p_bono__bono__tipo__elemento='plan de inversion')
 	serializer_class = sAporte
 	filterset_fields = ['p_bono__protagonista__cedula']
 
@@ -128,7 +128,7 @@ class AporteViewSet(DigitadorMixin, CapitalizacionViewSet):
 
 
 # ViewSet de Capacitaciones
-class CapacitacionViewSet(DigitadorMixin, CapitalizacionViewSet):
+class CapacitacionViewSet(CapitalizacionViewSet):
 
 	queryset = Capacitacion.objects.all()
 	serializer_class = sCapacitacion
