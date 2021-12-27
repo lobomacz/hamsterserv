@@ -1,7 +1,8 @@
-from django.shortcuts import get_object_or_404, get_list_or_404
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout 
+from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
+from django.db import transaction
 from django.urls import reverse_lazy
 from django.conf import settings
 from django.utils import timezone
@@ -11,17 +12,11 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework_gis import filters
 from rest_framework.filters import SearchFilter
-# from django.contrib.auth.mixins import LoginRequiredMixin
-# from django.views import View 
-# from django.views.generic.base import TemplateView
-# from django.views.generic.list import ListView
-# from django.views.generic.detail import DetailView
-# from django.views.generic.edit import CreateView, UpdateView, FormView
-from django.db import transaction
+from hitcount.models import HitCount
+from hitcount.views import HitCountMixin
 from sispro.permissions import IsOwnerOrReadOnly
 from sispro.serializers import *
 from sispro.models import *
-#from sispro.forms import *
 import datetime
 import json
 
@@ -29,13 +24,57 @@ import json
 # Create your views here.
 
 
-# Vistas principales
+# Mixins
+
+# Mixin de hitcount
+class RestHitMixin(HitCountMixin):
+
+	def dispatch(self, request, *args, **kwargs):
+		response = super(RestHitMixin, self).dispatch(request, *args, **kwargs)
+
+		if hasattr(self, "action") and self.action not in ["retrieve"]:
+			return response
+
+		if hasattr(self, "get_queryset") and callable(getattr(self, "get_queryset")):
+			opts, u = self.get_queryset().model._meta, request.user
+
+			def hit_action():
+				ctype = ContentType.objects.get(app_label=opts.app_label, model=opts.model)
+
+				hitcount, created = HitCount.objects.get_or_create(content_type=ctype, object_pk=kwargs["pk"])
+
+				self.hit_count(request, hitcount)
+
+			transaction.on_commit(hit_action)
+
+		return response
+
+	def get_serializer_class(self):
+		class RestHitSerializer(super(RestHitMixin, self).get_serializer_class()):
+			def to_representation(cls, instance):
+				response = super(RestHitSerializer, cls).to_representation(instance)
+
+				def get_hits(obj):
+					try:
+						return HitCount.objects.get_for_object(obj).hits
+					except: #noqa
+						return 0
+
+				response.update({"hits":get_hits(instance)})
+
+				return response
+
+		return RestHitSerializer
+
+
 
 # Mixin de digitador
 class DigitadorMixin():
 	def perform_create(self, serializer):
 		serializer.save(digitador=self.request.user)
 
+
+# Vistas principales
 
 # Vista de ingreso de usuarios(login)
 class LoginView(APIView):
@@ -123,7 +162,6 @@ class AporteViewSet(CapitalizacionViewSet):
 	queryset = Aporte.objects.filter(p_bono__bono__tipo__elemento='plan de inversion')
 	serializer_class = sAporte
 	filterset_fields = ['p_bono__protagonista__cedula']
-
 
 
 

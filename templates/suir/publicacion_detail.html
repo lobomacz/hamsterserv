@@ -4,6 +4,10 @@
 
 {% load bootstrap_icons %}
 
+{% load hitcount_tags %}
+
+{% load social_share %}
+
 {% block header %}
 	{% include './SuirHeader.html' with seccion=tipo %}
 {% endblock %}
@@ -21,6 +25,9 @@
 
 				<div class="detalle-body">
 					<img src="{{ publicacion.portada.url }}" alt="imagen publicación" class="detalle-body__img mx-auto">
+					{% post_to_facebook publicacion 'Facebook' 'btn-primary' %}
+					{% post_to_twitter publicacion.titulo publicacion 'Twitter' 'btn-info' %}
+					<p class="lead"><span class="badge bg-secondary">{{ hitcount.total_hits }}</span> Visita{{ hitcount.total_hits | pluralize }}</p>
 					{% if publicacion.tipo.elemento == 'noticia' and tags %}
 						<p class="text-wrap mt-3">
 							{% for tag in tags %}

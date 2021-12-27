@@ -258,7 +258,7 @@ class LinkRed(SoftDeletionModel):
 class Publicacion(SoftDeletionModel, TimestampsModel):
 	"""Clase del modelo Publicacion"""
 	titulo = models.CharField('Título', max_length=250)
-	slug = models.SlugField(max_length=150, primary_key=True)
+	slug = models.SlugField(max_length=150)
 	fecha = models.DateField()
 	autor = models.ForeignKey(User, on_delete=models.RESTRICT)
 	portada = models.ImageField(upload_to='suir/publicaciones/img/')
@@ -298,9 +298,9 @@ class Publicacion(SoftDeletionModel, TimestampsModel):
 
 	def get_absolute_url(self):
 		if self.tipo.elemento == 'noticia':
-			return reverse('detalle_noticia', kwargs={'slug':self.pk})
+			return reverse('detalle_noticia', kwargs={'slug':self.slug})
 		else:
-			return reverse('detalle_informe', kwargs={'slug':self.pk})
+			return reverse('detalle_informe', kwargs={'slug':self.slug})
 
 
 	class Meta:

@@ -9,6 +9,7 @@ from django.views.generic import View
 from django.views.generic.base import TemplateView
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
+from hitcount.views import HitCountDetailView
 from suir.models import *
 import datetime
 
@@ -16,6 +17,9 @@ import datetime
 # Create your views here.
 
 PAGINAS = settings.SUIR_CONF['paginas']
+
+
+# Views
 
 class InicioView(TemplateView):
 
@@ -139,16 +143,29 @@ class ListaFiltroPublicacionesView(ListaPublicacionesView):
 		return Publicacion.objects.filter(Q(titulo__contains=clave) | Q(tags__contains=clave),tipo__elemento=self.tipo)
 
 
-class DetallePublicacionView(SuirDetailView):
+class DetallePublicacionView(HitCountDetailView):
 	model = Publicacion
 	context_object_name = 'publicacion'
+	count_hit = True
+
+	def get_queryset(self):
+		slug = self.kwargs['slug']
+		return Publicacion.objects.filter(slug=slug)
 
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
+
+		enlaces = LinkExterno.objects.filter(activo=True)[:6]
+		redes = LinkRed.objects.filter(activo=True)
+
 		context['tipo'] = self.object.tipo.elemento
 		context['tags'] = [tag.strip() for tag in  self.get_object().tags.split(',')]
-		
-		return context 
+		context['enlaces'] = enlaces
+		context['redes'] = redes 
+		context['fecha'] = datetime.datetime.now()
+
+		return context
+
 
 
 

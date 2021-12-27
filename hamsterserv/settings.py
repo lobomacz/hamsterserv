@@ -56,6 +56,8 @@ INSTALLED_APPS = [
     'sispro',
     'ckeditor',
     'ckeditor_uploader',
+    'hitcount',
+    'django_social_share'
 ]
 
 MIDDLEWARE = [
@@ -279,3 +281,11 @@ SISPRO_CONF = {
         'propietario':"Usted no es el propietario/digitador del registro. Por este motivo, no tiene permiso de modificación. Consulte con el administrador del sistema.",
     }
 }
+
+HITCOUNT_KEEP_HIT_ACTIVE = {'hours':12}
+
+HITCOUNT_HITS_PER_IP_LIMIT = 0
+
+
+
+
