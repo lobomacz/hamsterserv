@@ -24,6 +24,14 @@ class ProgramaAdmin(ModelAdmin):
 		ProyectoInline,
 	]
 
+class ProtagonistaAdmin(ModelAdmin):
+	model = Protagonista
+	ordering = ['comunidad__municipio__nombre', 'comunidad__nombre', 'apellidos']
+
+
+class TecnicoAdmin(ModelAdmin):
+	model = Tecnico
+	ordering = ['comunidad__municipio__nombre', 'comunidad__nombre', 'apellidos']
 
 
 

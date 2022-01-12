@@ -70,8 +70,10 @@ sispro_admin = SisproAdminSite(name='sisproadmin')
 
 sispro_admin.register(Programa, ProgramaAdmin)
 sispro_admin.register(User, UserAdmin)
-sispro_admin.register(Tecnico)
+sispro_admin.register(Protagonista, ProtagonistaAdmin)
+sispro_admin.register(Tecnico, TecnicoAdmin)
 sispro_admin.register(Bono)
+
 
 
 
