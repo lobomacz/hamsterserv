@@ -6,6 +6,7 @@ from django.urls import reverse
 from django_timestamps.softDeletion import SoftDeletionModel
 from django_timestamps.timestamps import TimestampsModel
 from suir.models import Tabla, DetalleTabla, Institucion, Comunidad, Contacto
+from sispro.views import ProtagonistasViewSet, ProtagonistasBonosViewSet
 
 
 # Create your models here.
@@ -133,7 +134,7 @@ class Protagonista(SoftDeletionModel, TimestampsModel):
 		return "{0} {1} >>> {2}".format(self.nombres.upper(), self.apellidos.upper(), self.cedula.upper())
 
 	def get_absolute_url(self):
-		return reverse('detalle_protagonista', kwargs={'pk':self.pk})
+		return ProtagonistasViewSet().reverse_action('retrieve', args=[self.pk]) # reverse('detalle_protagonista', kwargs={'pk':self.pk})
 
 	class Meta:
 		ordering = ['apellidos', 'nombres']
@@ -167,7 +168,7 @@ class ProtagonistaBono(TimestampsModel, models.Model):
 
 
 	def get_absolute_url(self):
-		return reverse('detalle_protagonista_bono', kwargs={'pk':self.pk})
+		return ProtagonistasBonosViewSet().reverse_action('retrieve', args=[self.pk]) # reverse('detalle_protagonista_bono', kwargs={'pk':self.pk})
 
 
 	class Meta:

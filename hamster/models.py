@@ -3,20 +3,7 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 from django_timestamps.timestamps import TimestampsModel
 from suir.models import Institucion
-
-# Create your models here.
-
-#class Institucion(models.Model):
-#	"""docstring for Institucion"""
-#	
-#	nombre = models.CharField(max_length=50)
-#	siglas = models.CharField("Siglas/Acronimo", max_length=15)
-#
-#	def __str__(self):
-#		return self.nombre.upper()
-#
-#	class Meta:
-#		verbose_name_plural = 'Instituciones'
+from hamster.views import BeneficiarioViewSet
 
 
 class Funcionario(models.Model):
@@ -59,7 +46,7 @@ class Beneficiario(models.Model):
 		return "{0} {1}".format(self.primer_nombre, self.primer_apellido).upper()
 
 	def get_absolute_url(self):
-		return reverse('detalle_beneficiario', kwargs={'pk':self.pk})
+		return BeneficiarioViewSet().reverse_action('retrieve', args=[self.pk]) # reverse('detalle_beneficiario', kwargs={'pk':self.pk})
 
 	class Meta:
 		ordering: ['primer_apellido', 'primer_nombre']
