@@ -102,6 +102,10 @@ body {
   color: #fff;
 }
 
+figure.image, p > img, .cke_widget_element {
+  margin: 1.5rem;
+}
+
 .u-align-middle {
   display: table-cell;
   vertical-align: middle;
@@ -191,6 +195,11 @@ body {
   text-decoration: underline;
 }
 
+.card-img-top {
+  height: 50%;
+  width: 100%;
+}
+
 .carousel {
   background-color: #162A59;
   border-radius: 0.6rem;
@@ -265,7 +274,7 @@ body {
   color: #ADADFF;
   margin-right: 3rem;
   font-family: Bebas, "Lato", "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 2rem;
+  font-size: 1.5rem;
   border-bottom: 1px solid transparent;
 }
 .footer-nav__el-link:hover {
@@ -365,7 +374,7 @@ body {
 .navbar-menu__list-el {
   float: left;
 }
-.navbar-menu__list-ln.active {
+.navbar-menu__list-ln.active,  .navbar-menu__list-ln.active:hover {
   color: blue;
   background-color: #8BCE2C;
   border-color: #8BCE2C;
@@ -374,6 +383,7 @@ body {
   color: #8AE40B;
   border-color: #8AE40B;
 }
+
 .navbar-menu__icon {
   font-size: 2rem;
   position: absolute;
@@ -510,6 +520,11 @@ body {
 }
 .publicacion-list__items {
   background: rgba(173, 173, 255, 0.8);
+}
+
+.transmision {
+  width: 56rem;
+  height: 31.5rem;
 }
 
 /*# sourceMappingURL=graccs.css.map */

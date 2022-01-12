@@ -1,18 +1,19 @@
 from django.shortcuts import get_object_or_404, get_list_or_404
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout 
-from hamster.serializers import *
-from hamster.models import *
-from hamster.permissions import IsOwnerOrReadOnly
 from rest_framework import generics, permissions, status, viewsets
 from rest_framework.views import APIView
 from rest_framework.response import Response 
 from rest_framework.decorators import action
+from hamster.permissions import IsOwnerOrReadOnly
+from hamster.serializers import *
+from hamster.models import *
 import json
 
 
 
 # Create your views here.
+
 
 class ContribucionViewSet(viewsets.ModelViewSet):
 
@@ -39,7 +40,7 @@ class ContribucionViewSet(viewsets.ModelViewSet):
 
 
 	def perform_create(self, serializer):
-		serializer.save(digitador=self.request.user)
+		serializer.save(funcionario=self.request.user.funcionario)
 
 
 		
@@ -102,7 +103,8 @@ class UserLogin(APIView):
 			serializer = UserSerializer(user)
 			return Response(serializer.data, status=status.HTTP_200_OK)
 		else:
-			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+			#return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+			return Response(json.dumps({'mensaje':'Credenciales Inválidas'}), status=status.HTTP_400_BAD_REQUEST)
 
 
 

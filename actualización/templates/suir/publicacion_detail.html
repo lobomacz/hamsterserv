@@ -1,0 +1,51 @@
+{% extends './base.html' %}
+
+{% load django_bootstrap5 %}
+
+{% load bootstrap_icons %}
+
+{% block header %}
+	{% include './SuirHeader.html' with seccion=tipo %}
+{% endblock %}
+
+{% block content %}
+
+	<div class="container detalle">
+		<div class="row">
+			<div class="col-8 mx-auto">
+				<h4 class="detalle-title text-uppercase text-wrap text-light">
+					{{ publicacion.titulo | upper }}
+				</h4>
+				<p class="lead">{{ publicacion.autor.first_name | lower | capfirst }} {{ publicacion.autor.last_name | lower | capfirst }}</p>
+				<p class="text-muted">{{ publicacion.autor.get_full_name }} &mdash; {{ publicacion.fecha | date:"d-M-Y" }}</p>
+
+				<div class="detalle-body">
+					<img src="{{ publicacion.portada.url }}" alt="imagen publicación" class="detalle-body__img mx-auto">
+					{% if publicacion.tipo.elemento == 'noticia' and tags %}
+						<p class="text-wrap mt-3">
+							{% for tag in tags %}
+							<span class="badge rounded-pill bg-info">#{{ tag }}</span>&nbsp;
+							{% endfor %}
+						</p>
+					{% endif %}
+					<div class="text-wrap">
+						{{ publicacion.contenido | safe }}
+					</div>
+					{% if publicacion.tipo.elemento == 'informe' and publicacion.documento %}
+						<div>
+							<a class="btn btn-outline-secondary" href="{{  publicacion.documento.url  }}">Descargar Informe <span>
+								{% bs_icon 'download' %}
+							</span>
+							</a><span class="badge badge-secondary">{{ publicacion.documento.size | filesizeformat }}</span>
+						</div>
+					{% endif %}
+				</div>
+			</div>
+		</div>
+		<b-row></b-row>
+	</div>
+{% endblock %}
+
+{% block footer %}
+	{% include './SuirFooter.html' %}
+{% endblock %}

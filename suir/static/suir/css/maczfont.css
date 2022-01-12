@@ -2,11 +2,11 @@
 
 @font-face {
   font-family: "maczfont";
-  src:url("~assets/fonts/maczfont.eot");
-  src:url("~assets/fonts/maczfont.eot?#iefix") format("embedded-opentype"),
-    url("~assets/fonts/maczfont.woff") format("woff"),
-    url("~assets/fonts/maczfont.ttf") format("truetype"),
-    url("~assets/fonts/maczfont.svg#maczfont") format("svg");
+  src:url("../fonts/maczfont.eot");
+  src:url("../fonts/maczfont.eot?#iefix") format("embedded-opentype"),
+    url("../fonts/maczfont.woff") format("woff"),
+    url("../fonts/maczfont.ttf") format("truetype"),
+    url("../fonts/maczfont.svg#maczfont") format("svg");
   font-weight: normal;
   font-style: normal;
 

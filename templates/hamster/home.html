@@ -1,8 +1,0 @@
-{% extends 'hamster/base.html' %}
-{% block content %}
-<form action="/hamster" method="post">
-	{% csrf_token %}
-	<h3>{{ saludo }}</h3>
-	<input type="submit" name="" value="Enviar">
-</form>
-{% endblock %}

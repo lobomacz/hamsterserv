@@ -13,45 +13,25 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-# from django.contrib import admin
+
 from django.urls import include, path
-from django.conf import settings
-from django.conf.urls.static import static
+from django.views.generic.base import TemplateView
 from hamsterserv.admin import hamster_admin, suir_admin
-from suir.views import *
+
 
 urlpatterns = [
-    path('hamster-admin/', hamster_admin.urls),
-    path('hamster/', include('hamster.urls')),
-    path('suir-admin/', suir_admin.urls),
-    #path('suir/', include('suir.urls')),
+    path('admin/', include([
+        path('1/', suir_admin.urls),
+        path('2/', hamster_admin.urls),
+        ])),
+    path('api/', include([
+        path('hamster/', include('hamster.urls')),
+        path('sispro/', include('sispro.urls')),
+        ])),
     path('ckeditor/', include('ckeditor_uploader.urls')),
-    path('', InicioView.as_view(), name='inicio'),
-    #path('login/', LoginView.as_view(), name='login'),
-    #path('logout/', LogoutView.as_view(), name='logout'),
-    path('noticias/', include([
-        path('', ListaPublicacionesView.as_view(tipo='noticia'), name='lista_noticias'),
-        path('buscar/', ListaFiltroPublicacionesView.as_view(tipo='noticia'), name='buscar_noticias'),
-        #path('nuevo/', CreatePublicacionView.as_view(tipo='noticia'), name='nueva_noticia'),
-        path('<slug:slug>/', DetallePublicacionView.as_view(), name='detalle_noticia'),
-        path('<slug:slug>/update/', UpdatePublicacionView.as_view(), name='update_noticia'),
-        ])),
-    path('informes/', include([
-        path('', ListaPublicacionesView.as_view(tipo='informe'), name='lista_informes'),
-        path('buscar/', ListaFiltroPublicacionesView.as_view(tipo='informe'), name='buscar_informes'),
-        #path('nuevo/', CreatePublicacionView.as_view(tipo='informe'), name='nuevo_informe'),
-        path('<slug:slug>/', DetallePublicacionView.as_view(), name='detalle_informe'),
-        path('<slug:slug>/update/', UpdatePublicacionView.as_view(), name='update_informe'),
-        ])),
-    path('indicadores/', include([
-        path('', ListaIndicadoresView.as_view(), name='lista_indicadores'),
-        path('buscar/', ListaFiltroIndicadoresView.as_view(), name='buscar_indicadores'),
-        path('<int:pk>/', DetalleIndicadorView.as_view(), name='detalle_indicador'),
-        #path('<int:pk>/valor/nuevo/', ValorIndicadorView.as_view(), name='create_valor_indicador'),
-        path('valor/<int:pk>/', DetalleValorView.as_view(), name='detalle_valor_indicador'),
-        #path('valor/<int:pk>/update/', UpdateValorIndicadorView.as_view(), name='update_valor_indicador'),
-        ])),
-    
+    path('hamster/', TemplateView.as_view(template_name='hamster/index.html'), name='inicio_hamster'),
+    path('sispro/', TemplateView.as_view(template_name='sispro/index.html'), name='inicio_sispro'),
+    path('', include('suir.urls')),
 ]
 
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
