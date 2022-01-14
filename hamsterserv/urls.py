@@ -16,13 +16,14 @@ Including another URLconf
 
 from django.urls import include, path
 from django.views.generic.base import TemplateView
-from hamsterserv.admin import hamster_admin, suir_admin
+from hamsterserv.admin import hamster_admin, suir_admin, sispro_admin
 
 
 urlpatterns = [
     path('admin/', include([
         path('1/', suir_admin.urls),
         path('2/', hamster_admin.urls),
+        path('3/', sispro_admin.urls),
         ])),
     path('api/', include([
         path('hamster/', include('hamster.urls')),
