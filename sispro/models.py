@@ -6,7 +6,6 @@ from django.urls import reverse
 from django_timestamps.softDeletion import SoftDeletionModel
 from django_timestamps.timestamps import TimestampsModel
 from suir.models import Tabla, DetalleTabla, Institucion, Comunidad, Contacto
-from sispro.views import ProtagonistasViewSet, ProtagonistasBonosViewSet
 
 
 # Create your models here.

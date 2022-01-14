@@ -14,6 +14,7 @@ class SisproAdminSite(AdminSite):
 
 class ProyectoInline(StackedInline):
 	ordering = ['programa', 'codigo']
+	model = Proyecto
 
 
 class ProgramaAdmin(ModelAdmin):
@@ -24,10 +25,12 @@ class ProgramaAdmin(ModelAdmin):
 
 class ProtagonistaAdmin(ModelAdmin):
 	ordering = ['comunidad__municipio__nombre', 'comunidad__nombre', 'apellidos']
+	exclude = ['deleted_at']
 
 
 class TecnicoAdmin(ModelAdmin):
 	ordering = ['comunidad__municipio__nombre', 'comunidad__nombre', 'apellidos']
+	exclude = ['deleted_at']
 
 
 
