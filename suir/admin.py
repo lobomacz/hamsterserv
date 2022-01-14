@@ -1,12 +1,17 @@
 from django.contrib.admin import AdminSite, ModelAdmin, TabularInline, StackedInline
+from django.contrib import admin, messages
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.gis.admin import OSMGeoAdmin
 from django.core.exceptions import PermissionDenied, ValidationError
+from django.utils.translation import ngettext
 from ckeditor_uploader.fields import RichTextUploadingField
 from ckeditor_uploader.widgets import CKEditorUploadingWidget
 from suir.models import *
 import datetime
+
+# Actions block
+
 
 # Register your models here.
 
@@ -21,13 +26,31 @@ class SuirAdmin(AdminSite):
 class CarruselAdmin(ModelAdmin):
 
 	list_display = ['titulo', 'activo']
+	list_filter = ['activo']
 	exclude = ['deleted_at', 'updated_at']
+	actions = ['desactivar', 'delete']
+	ordering = ['-activo']
+
+
+	@admin.action(description="Desactivar imagen del carrusel")
+	def desactivar(self, request, queryset):
+		queryset.update(activo=False)
+		self.message_user(request, ngettext('%d imagen se removió del carrusel', '%d imágenes se removieron del carrusel', updated) % updated, messages.SUCCESS)
 
 
 
 class AnuncioAdmin(ModelAdmin):
 
 	list_display = ['titulo', 'activo']
+
+	def save_model(self, request, obj, form, change):
+		obj_model = obj.__class__
+		activos = obj_model.objects.filter(activo=True).count()
+		if not activos < 2:
+			self.message_user(request, 'Ya existen 2 anuncios activos. No puede ingresar otro sin desactivar uno de los anuncios activos.', messages.ERROR)
+		else:
+			super().save_model(request, obj, form, change)
+
 
 
 class IndicadorAdmin(ModelAdmin):
@@ -155,7 +178,9 @@ class PublicacionAdmin(ModelAdmin):
 	readonly_fields = ('publicado',)
 	date_hierarchy = 'fecha'
 	empty_value_display = '-NA-'
-	list_display = ('slug','titulo')
+	list_display = ('fecha', 'slug', 'titulo', 'estado', 'publicado')
+	list_filter = (('carrusel', admin.BooleanFieldListFilter), 'estado')
+	actions = ['promover_carrusel', 'quitar_carrusel', 'quitar_publicados', 'delete']
 	formfield_overrides = {
 		RichTextUploadingField: {'widget':CKEditorUploadingWidget}
 	}
@@ -167,6 +192,23 @@ class PublicacionAdmin(ModelAdmin):
 			'all': ('suir/css/admin.css',)
 		}
 
+
+	@admin.action(description="Promover al carrusel")
+	def promover_carrusel(self, request, queryset):
+		queryset.update(carrusel=True)
+		self.message_user(request, ngettext('%d publicación se promovió al carrusel.', '%d publicaciones fueron promovidas al carrusel.', updated) % updated, messages.SUCCESS)
+
+
+	@admin.action(description="Quitar del carrusel")
+	def quitar_carrusel(self, request, queryset):
+		queryset.update(carrusel=False)
+		self.message_user(request, ngettext('%d publicación se quitó del carrusel.', '%d publicaciones se quitaron del carrusel.', updated) % updated, messages.SUCCESS)
+
+	@admin.action(description="Quitar de publicados")
+	def quitar_publicados(self, request, queryset):
+		pendiente = DetalleTabla.objects.filter(tabla__tabla='estados_pub', elemento='pendiente')
+		queryset.update(estado=pendiente)
+		self.message_user(request, 'Se cambió el estado a ' + ngettext('%d publicación', '%d publicaciones', updated) % updated, messages.SUCCESS)
 
 	def has_change_permission(self, request, obj=None):
 
@@ -219,7 +261,6 @@ class PublicacionAdmin(ModelAdmin):
 	def save_model(self, request, obj, form, change):
 
 		if not change:
-			print(obj.tipo)
 
 			if obj.tipo.elemento == 'noticia':
 
@@ -240,7 +281,6 @@ class PublicacionAdmin(ModelAdmin):
 		if not obj.autor == request.user:
 
 			if obj.tipo.elemento == 'noticia':
-
 
 				if not request.user.has_perms(['suir.crear_noticia','suir.publicar_noticia', 'suir.change_publicacion']):
 					
