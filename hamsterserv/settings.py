@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'django_filters',
     'rest_framework',
     'rest_framework_gis',
+    'rest_framework.authtoken',
     'django_bootstrap5',
     'django_bootstrap_icons',
     'corsheaders',  
@@ -195,7 +196,6 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS':'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE':100,
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
-
 }
 
 # Django WYSIWYG settings for rich text editor with CKEditor
