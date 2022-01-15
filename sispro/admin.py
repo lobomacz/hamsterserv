@@ -27,10 +27,18 @@ class ProtagonistaAdmin(ModelAdmin):
 	ordering = ['comunidad__municipio__nombre', 'comunidad__nombre', 'apellidos']
 	exclude = ['deleted_at']
 
+	def save_model(self, request, obj, form, change):
+		obj.cedula = obj.cedula.replace('-', '').strip().upper()
+		super().save_model(request, obj, form, change)
+
 
 class TecnicoAdmin(ModelAdmin):
 	ordering = ['comunidad__municipio__nombre', 'comunidad__nombre', 'apellidos']
 	exclude = ['deleted_at']
+
+	def save_model(self, request, obj, form, change):
+		obj.cedula = obj.cedula.replace('-', '').strip().upper()
+		super().save_model(request, obj, form, change)
 
 
 
