@@ -12,6 +12,8 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework_gis import filters
 from rest_framework.filters import SearchFilter
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.authtoken.models import Token
 from hitcount.models import HitCount
 from hitcount.views import HitCountMixin
 from sispro.permissions import IsOwnerOrReadOnly
@@ -22,7 +24,6 @@ import json
 
 
 # Create your views here.
-
 
 # Mixins
 
@@ -74,27 +75,25 @@ class DigitadorMixin():
 		serializer.save(digitador=self.request.user)
 
 
+
 # Vistas principales
 
 # Vista de ingreso de usuarios(login)
-class LoginView(APIView):
+class LoginView(ObtainAuthToken):
 
-	serializer_class = UserSerializer
-	permission_classes = [permissions.AllowAny]
-	queryset = User.objects.all()
-
-	def post(self, request, format=None):
-
-		uname = request.data['nombreusuario']
-		passwd = request.data['contrasena']
-
-		user = authenticate(uname, passwd)
-
-		if user is not None:
-			serializer = UserSerializer(user)
-			return Response(serializer.data, status.HTTP_200_OK)
-		else:
-			return Response(json.dumps({'mensaje':'¡Credenciales Incorrectas!'}), status.HTTP_400_BAD_REQUEST)
+	def post(self, request, *args, **kwargs):
+		serializer = self.serializer_class(data=request.data, context={'request': request})
+		serializer.is_valid(raise_exception=True)
+		user = serializer.validated_data['user']
+		token, created = Token.objects.get_or_create(user=user)
+		return response({
+			'token': token,
+			'user_firstname': user.first_name,
+			'user_lastname': user.last_name,
+			'user_groups': user.groups,
+			'user_permissions': user.user_permissions,
+			'is_active': user.is_active
+			})
 
 
 
