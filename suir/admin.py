@@ -16,6 +16,8 @@ class EstadoListFilter(admin.SimpleListFilter):
 
 	title = 'Estado de publicación'
 
+	parameter_name = 'estado'
+
 	def lookups(self, request, model_admin):
 		"""
 		Retorna una lista de tuplas. El primer elemento de cada tupla
