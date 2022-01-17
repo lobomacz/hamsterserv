@@ -23,11 +23,18 @@ class EstadoListFilter(admin.SimpleListFilter):
 		Segundo elemento es al etiqueta de la opción que aparecerá en la 
 		barra de filtros.
 		"""
-		return (
-			('borrador', 'Borrador'),
-			('pendiente', 'Pendiente de publicar'),
-			('publicado', 'Publicado'),
-			) 
+
+		qs = model_admin.get_queryset(request)
+
+		if qs.filter(estado__elemento='borrador').exists():
+			yield ('borrador', 'Borrador')
+
+		if qs.filter(estado__elemento='pendiente').exists():
+			yield ('pendiente', 'Pendiente de publicar')
+
+		if qs.filter(estado__elemento='publicado').exists():
+			yield ('publicado', 'Publicado')
+		
 
 	def queryset(self, request, queryset):
 
