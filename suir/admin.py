@@ -10,7 +10,34 @@ from ckeditor_uploader.widgets import CKEditorUploadingWidget
 from suir.models import *
 import datetime
 
-# Actions block
+# Filters block
+
+class EstadoListFilter(admin.SimpleListFilter):
+
+	title = 'Estado de publicación'
+
+	def lookups(self, request, model_admin):
+		"""
+		Retorna una lista de tuplas. El primer elemento de cada tupla
+		es el código de valor que se va a poner en la solicitud. El 
+		Segundo elemento es al etiqueta de la opción que aparecerá en la 
+		barra de filtros.
+		"""
+		return (
+			('borrador', 'Borrador'),
+			('pendiente', 'Pendiente de publicar'),
+			('publicado', 'Publicado')
+			) 
+
+	def queryset(self, request, queryset):
+
+		if self.value() == 'borrador':
+			return queryset.filter(estado__elemento='borrador')
+		elif self.value() == 'pendiente':
+			return queryset.filter(estado__elemento='pendiente')
+		elif self.value() == 'publicado':
+			return queryset.filter(estado__elemento='publicado')
+
 
 
 # Register your models here.
@@ -179,7 +206,7 @@ class PublicacionAdmin(ModelAdmin):
 	date_hierarchy = 'fecha'
 	empty_value_display = '-NA-'
 	list_display = ('fecha', 'slug', 'titulo', 'estado', 'publicado')
-	list_filter = (('carrusel', admin.BooleanFieldListFilter), 'estado')
+	list_filter = (('carrusel', admin.BooleanFieldListFilter), EstadoListFilter)
 	actions = ['promover_carrusel', 'quitar_carrusel', 'quitar_publicados', 'delete']
 	formfield_overrides = {
 		RichTextUploadingField: {'widget':CKEditorUploadingWidget}
