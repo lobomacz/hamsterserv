@@ -214,7 +214,7 @@ class PublicacionAdmin(ModelAdmin):
 	readonly_fields = ('publicado',)
 	date_hierarchy = 'fecha'
 	empty_value_display = '-NA-'
-	list_display = ('fecha', 'slug', 'titulo', 'estado', 'publicado')
+	list_display = ('slug', 'titulo', 'fecha', 'estado', 'publicado')
 	list_filter = (('carrusel', admin.BooleanFieldListFilter), EstadoListFilter)
 	actions = ['promover_carrusel', 'quitar_carrusel', 'quitar_publicados', 'delete']
 	formfield_overrides = {
