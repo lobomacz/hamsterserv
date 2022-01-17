@@ -26,7 +26,7 @@ class EstadoListFilter(admin.SimpleListFilter):
 		return (
 			('borrador', 'Borrador'),
 			('pendiente', 'Pendiente de publicar'),
-			('publicado', 'Publicado')
+			('publicado', 'Publicado'),
 			) 
 
 	def queryset(self, request, queryset):
