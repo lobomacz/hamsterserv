@@ -140,7 +140,7 @@ class ListaFiltroPublicacionesView(ListaPublicacionesView):
 	def get_queryset(self):
 		clave = self.request.GET.get('q').strip()
 
-		return Publicacion.objects.filter(Q(titulo__contains=clave) | Q(tags__contains=clave),tipo__elemento=self.tipo)
+		return Publicacion.objects.filter(Q(titulo__contains=clave) | Q(tags__contains=clave),tipo__elemento=self.tipo, estado__elemento='publicado')
 
 
 class DetallePublicacionView(HitCountDetailView):
