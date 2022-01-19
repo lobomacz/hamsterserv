@@ -126,7 +126,7 @@ class ListaPublicacionesView(SuirListView):
 	tipo = ''
 
 	def get_queryset(self):
-		return Publicacion.objects.filter(tipo__elemento=self.tipo)
+		return Publicacion.objects.filter(tipo__elemento=self.tipo, estado__elemento='publicado')
 
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
