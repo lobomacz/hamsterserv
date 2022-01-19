@@ -231,19 +231,19 @@ class PublicacionAdmin(ModelAdmin):
 
 	@admin.action(description="Promover al carrusel")
 	def promover_carrusel(self, request, queryset):
-		queryset.update(carrusel=True)
+		updated = queryset.update(carrusel=True)
 		self.message_user(request, ngettext('%d publicación se promovió al carrusel.', '%d publicaciones fueron promovidas al carrusel.', updated) % updated, messages.SUCCESS)
 
 
 	@admin.action(description="Quitar del carrusel")
 	def quitar_carrusel(self, request, queryset):
-		queryset.update(carrusel=False)
+		updated = queryset.update(carrusel=False)
 		self.message_user(request, ngettext('%d publicación se quitó del carrusel.', '%d publicaciones se quitaron del carrusel.', updated) % updated, messages.SUCCESS)
 
 	@admin.action(description="Quitar de publicados")
 	def quitar_publicados(self, request, queryset):
 		pendiente = DetalleTabla.objects.filter(tabla__tabla='estados_pub', elemento='pendiente')
-		queryset.update(estado=pendiente)
+		updated = queryset.update(estado=pendiente)
 		self.message_user(request, 'Se cambió el estado a ' + ngettext('%d publicación', '%d publicaciones', updated) % updated, messages.SUCCESS)
 
 	def has_change_permission(self, request, obj=None):
