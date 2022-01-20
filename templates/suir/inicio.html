@@ -13,6 +13,18 @@
 {% block content %}
 
 <div>
+	{% if transmision != None %}
+		<div class="mt-5 container d-none d-md-block">
+			<div class="row">
+				<div class="col-6 mx-auto">
+					<div class="overflow-hidden mx-auto justify-content-center border border-3 border-info rounded transmision">
+						{{ transmision.codigo | safe }}
+					</div>
+				</div>
+			</div>
+		</div>
+	{% endif %}
+
 	{% if anuncios.exists and anuncios.count > 0 %}
 		<div class="container anuncio-container d-none d-md-block">
 			<div class="row">
@@ -24,18 +36,6 @@
 						class="anuncio-img rounded"
 						>
 					</a>
-				</div>
-			</div>
-		</div>
-	{% endif %}
-
-	{% if transmision != None %}
-		<div class="mt-5 container d-none d-md-block">
-			<div class="row">
-				<div class="col-6 mx-auto">
-					<div class="overflow-hidden mx-auto justify-content-center border border-3 border-info rounded transmision">
-						{{ transmision.codigo | safe }}
-					</div>
 				</div>
 			</div>
 		</div>
