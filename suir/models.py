@@ -1,14 +1,26 @@
+from django.conf import settings
 from django.contrib.gis.db import models
 from django.db.models import Q
+from django.db.models.signals import post_save
 from django.core.validators import RegexValidator
 from django.contrib.auth.models import User
+from django.dispatch import receiver
 from django.urls import reverse
+from rest_framework.authtoken.models import Token
 from django_timestamps.softDeletion import SoftDeletionModel
 from django_timestamps.timestamps import TimestampsModel
 from ckeditor_uploader.fields import RichTextUploadingField
 
 
 # Create your models here.
+
+# Función para crear tokens para cada usuario
+
+@receiver(post_save, sender=settings.AUTH_USER_MODEL)
+def create_auth_token(sender, instance=None, created=False, **kwargs):
+
+	if created:
+		Token.objects.create(user=instance)
 
 
 class Anuncio(models.Model):

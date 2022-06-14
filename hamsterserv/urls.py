@@ -31,7 +31,6 @@ urlpatterns = [
         ])),
     path('ckeditor/', include('ckeditor_uploader.urls')),
     path('hamster/', TemplateView.as_view(template_name='hamster/index.html'), name='inicio_hamster'),
-    path('sispro/', TemplateView.as_view(template_name='sispro/index.html'), name='inicio_sispro'),
     path('', include('suir.urls')),
 ]
 

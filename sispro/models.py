@@ -1,17 +1,28 @@
+from django.conf import settings
 from django.contrib.gis.db import models
 from django.db.models import Q 
+from django.db.models.signals import post_save
 from django.core.validators import RegexValidator
 from django.contrib.auth.models import User 
 from django.urls import reverse 
+from django.dispatch import receiver
 from django_timestamps.softDeletion import SoftDeletionModel
 from django_timestamps.timestamps import TimestampsModel
+from rest_framework.authtoken.models import Token
 from suir.models import Tabla, DetalleTabla, Institucion, Comunidad, Contacto
 
 
 # Create your models here.
 
 
-# Modelo para tablas generales
+# Función para crear tokens para cada usuario
+
+# @receiver(post_save, sender=settings.AUTH_USER_MODEL)
+# def create_auth_token(sender, instance=None, created=False, **kwargs):
+#
+# 	if created:
+# 		Token.objects.create(user=instance)
+
 
 # Tabla de Contactos
 class Tecnico(SoftDeletionModel, TimestampsModel):
@@ -155,7 +166,8 @@ class ProtagonistaBono(TimestampsModel, models.Model):
 	tecnico = models.ForeignKey(Tecnico, on_delete=models.RESTRICT, help_text='Técnico que realizó la entrega.', null=True)
 	comunidad = models.ForeignKey(Comunidad, on_delete=models.PROTECT, help_text='Comunidad donde se ejecuta.')
 	observaciones = models.CharField(max_length=500, blank=True, null=True)
-	digitador = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+	digitador = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='protagonista_bono_digitador')
+	actualizado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='protagonista_bono_actualizador')
 	entregado = models.BooleanField(default=False, help_text='El Bono/Plan de inversión se entregó al protagonista.')
 	activo = models.BooleanField(default=True, help_text='Está activo para seguimiento.')
 
@@ -188,7 +200,9 @@ class Capitalizacion(TimestampsModel):
 	unidad = models.ForeignKey(DetalleTabla, on_delete=models.RESTRICT, limit_choices_to=Q(tabla__tabla='unidades'), related_name='capitalizaciones_unidades', help_text='Unidad de Medida')
 	cantidad = models.FloatField()
 	costo = models.DecimalField('Costo unitario', max_digits=8, decimal_places=2, help_text='Costo en Córdobas(C$)')
-	digitador = models.ForeignKey(User, on_delete=models.RESTRICT)
+	total = models.DecimalField('Costo total', max_digits=10, decimal_places=2, help_text='Costo total en Córdobas(C$)', default=0)
+	digitador = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='capitalizacion_digitador')
+	actualizado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='capitalizacion_actualizador')
 
 	class Meta:
 		ordering = ['p_bono']
